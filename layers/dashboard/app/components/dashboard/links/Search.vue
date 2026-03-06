@@ -151,32 +151,38 @@ watch(searchTerm, (val) => {
         <CommandGroup v-if="links.length" :heading="$t('links.group_title')">
           <CommandItem
             v-for="link in links" :key="link.slug" class="
-              group flex cursor-pointer items-center justify-between py-2
+              group flex cursor-pointer items-center justify-between px-4 py-3
             " :value="link.slug" @select="selectLink(link)"
           >
-            <div class="flex flex-1 items-center gap-3 overflow-hidden">
+            <div class="flex flex-1 items-center gap-4 overflow-hidden pr-2">
               <div
                 class="
-                  flex size-8 shrink-0 items-center justify-center rounded-md
-                  border bg-muted/50 text-muted-foreground
+                  flex size-10 shrink-0 items-center justify-center rounded-lg
+                  border bg-muted/50 text-muted-foreground transition-colors
+                  duration-200
+                  group-hover:bg-primary/10 group-hover:text-primary
                 "
               >
-                <LinkIcon class="size-4" />
+                <LinkIcon class="size-5" />
               </div>
-              <div class="flex flex-1 flex-col overflow-hidden">
+              <div class="flex flex-1 flex-col gap-1 overflow-hidden">
                 <div class="flex items-center gap-2">
-                  <span class="truncate text-sm leading-none font-semibold">
+                  <span class="truncate text-sm leading-tight font-bold">
                     {{ link.slug }}
                   </span>
                   <Badge
                     v-if="link.comment" variant="outline" class="
-                      h-4 px-1 text-[10px] font-normal
+                      h-4 px-1.5 text-[9px] font-normal tracking-wider uppercase
                     "
                   >
                     {{ link.comment }}
                   </Badge>
                 </div>
-                <div class="mt-0.5 truncate text-xs text-muted-foreground">
+                <div
+                  class="
+                    truncate text-[11px] leading-tight text-muted-foreground/80
+                  "
+                >
                   {{ link.url }}
                 </div>
               </div>
@@ -186,13 +192,14 @@ watch(searchTerm, (val) => {
               variant="ghost"
               size="icon"
               class="
-                size-8 opacity-0 transition-opacity
+                size-9 shrink-0 rounded-full opacity-0 transition-all
+                duration-200
                 group-hover:opacity-100
                 hover:bg-primary/10 hover:text-primary
               "
               @click="handleCopy($event, link.slug)"
             >
-              <Copy class="size-3.5" />
+              <Copy class="size-4" />
             </Button>
           </CommandItem>
         </CommandGroup>

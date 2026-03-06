@@ -41,27 +41,36 @@ function copyLink() {
 </script>
 
 <template>
-  <Card class="group/card relative h-full">
+  <Card class="group/card relative h-full transition-colors duration-200" :class="{ 'border-primary bg-primary/5 ring-1 ring-primary/20': selected }">
+    <!-- Selection Control -->
     <div
-      class="
-        absolute top-3 left-3 z-10 opacity-0 transition-opacity
+      class="absolute top-2 left-2 z-30 transition-all duration-200"
+      :class="[selected ? 'opacity-100' : `
+        opacity-0
         group-hover/card:opacity-100
-      "
-      :class="{ 'opacity-100': selected }"
+      `]"
+      @click.stop.prevent="emit('toggleSelect', link.slug)"
     >
-      <Checkbox
-        :checked="selected"
-        @update:checked="emit('toggleSelect', link.slug)"
-        @click.stop
-      />
+      <div
+        class="
+          flex size-5 cursor-pointer items-center justify-center rounded border
+          shadow-sm transition-colors
+        "
+        :class="selected ? 'border-primary bg-primary text-primary-foreground' : `
+          border-muted-foreground/30 bg-background
+          hover:border-primary
+        `"
+      >
+        <Check v-if="selected" class="size-3.5 stroke-[3px]" />
+      </div>
     </div>
+
     <CardContent class="flex-1">
       <NuxtLink
         class="flex h-full flex-col space-y-3"
-        :class="{ 'opacity-60': selected }"
         :to="`/dashboard/link?slug=${link.slug}`"
       >
-        <div class="flex items-center justify-center space-x-3 pl-6">
+        <div class="flex items-center justify-center space-x-3">
           <Avatar>
             <AvatarImage
               :src="linkIcon"
