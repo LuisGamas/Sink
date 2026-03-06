@@ -24,12 +24,17 @@ export async function putLink(event: H3Event, link: Link): Promise<void> {
   const { KV } = cloudflare.env
   const expiration = getExpiration(event, link.expiration)
 
-  await KV.put(`link:${link.slug}`, JSON.stringify(link), {
+  const linkToStore = { ...link }
+  if (linkToStore.password) {
+    linkToStore.password = await hashPassword(linkToStore.password)
+  }
+
+  await KV.put(`link:${linkToStore.slug}`, JSON.stringify(linkToStore), {
     expiration,
     metadata: {
       expiration,
-      url: withoutQuery(link.url),
-      comment: link.comment,
+      url: withoutQuery(linkToStore.url),
+      comment: linkToStore.comment,
     },
   })
 }

@@ -91,7 +91,7 @@ export default eventHandler(async (event) => {
           const body = await readBody(event)
           const submittedPassword = body?.password
 
-          if (submittedPassword !== link.password) {
+          if (!await verifyPassword(submittedPassword, link.password)) {
             return sendNoStoreHtml(generatePasswordHtml(slug, { hasError: true, locale: getLocale() }))
           }
 
@@ -101,7 +101,7 @@ export default eventHandler(async (event) => {
           }
         }
         else if (headerPassword) {
-          if (headerPassword !== link.password) {
+          if (!await verifyPassword(headerPassword, link.password)) {
             throw createError({ status: 403, statusText: 'Incorrect password' })
           }
           // Header-password path: check unsafe warning via x-link-confirm header
