@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { CounterData, Link } from '@/types'
-import { useClipboard } from '@vueuse/core'
-import { CalendarPlus2, Copy, CopyCheck, Eraser, Flame, Hourglass, Link as LinkIcon, MousePointerClick, QrCode, ShieldAlert, SquareChevronDown, SquarePen, Users } from 'lucide-vue-next'
+import { useClipboard, useNow } from '@vueuse/core'
+import { CalendarPlus2, Clock, Copy, CopyCheck, Eraser, Flame, Folder, Hourglass, Link as LinkIcon, MousePointerClick, QrCode, ShieldAlert, SquareChevronDown, SquarePen, Tag, Users } from 'lucide-vue-next'
 import { parseURL } from 'ufo'
 import { toast } from 'vue-sonner'
 
@@ -38,6 +38,10 @@ function copyLink() {
   copy(shortLink.value)
   toast(t('links.copy_success'))
 }
+
+const now = useNow()
+const isScheduled = computed(() => props.link.startsAt && props.link.startsAt * 1000 > now.value.getTime())
+const isExpired = computed(() => props.link.expiration && props.link.expiration * 1000 < now.value.getTime())
 </script>
 
 <template>
@@ -95,6 +99,18 @@ function copyLink() {
                 v-if="link.unsafe" variant="destructive" class="ml-1 shrink-0"
               >
                 <ShieldAlert class="h-3 w-3" />
+              </Badge>
+              <Badge
+                v-if="isScheduled" variant="outline" class="
+                  ml-1 shrink-0 border-yellow-500 text-yellow-500
+                "
+              >
+                <Clock class="h-3 w-3" />
+              </Badge>
+              <Badge
+                v-if="isExpired" variant="destructive" class="ml-1 shrink-0"
+              >
+                <Hourglass class="h-3 w-3" />
               </Badge>
 
               <Button
@@ -232,6 +248,7 @@ function copyLink() {
                       class="
                         inline-flex items-center leading-5 whitespace-nowrap
                       "
+                      :class="{ 'text-destructive': isExpired }"
                     ><Hourglass aria-hidden="true" class="mr-1 h-4 w-4" /> {{ shortDate(link.expiration) }}</span>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -240,9 +257,47 @@ function copyLink() {
                 </Tooltip>
               </TooltipProvider>
             </template>
+            <template v-if="link.startsAt">
+              <Separator orientation="vertical" />
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger as-child>
+                    <span
+                      class="
+                        inline-flex items-center leading-5 whitespace-nowrap
+                      "
+                      :class="{ 'text-yellow-500': isScheduled }"
+                    ><Clock aria-hidden="true" class="mr-1 h-4 w-4" /> {{ shortDate(link.startsAt) }}</span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{{ $t('links.form.starts_at') }}: {{ longDate(link.startsAt) }}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </template>
             <Separator orientation="vertical" />
             <span class="truncate">{{ link.url }}</span>
           </div>
+
+          <div
+            v-if="link.folder || link.tags?.length" class="flex flex-wrap gap-1"
+          >
+            <Badge
+              v-if="link.folder" variant="outline" class="
+                px-1 py-0 text-[10px] font-normal
+              "
+            >
+              <Folder class="mr-1 h-3 w-3" /> {{ link.folder }}
+            </Badge>
+            <Badge
+              v-for="tag in link.tags" :key="tag" variant="secondary" class="
+                px-1 py-0 text-[10px] font-normal
+              "
+            >
+              <Tag class="mr-1 h-3 w-3" /> {{ tag }}
+            </Badge>
+          </div>
+
           <div
             v-if="countersMap" class="flex h-5 w-full space-x-2 text-sm"
           >
