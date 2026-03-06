@@ -51,6 +51,7 @@ async function handleBatchDelete() {
         "
       />
       <DashboardLinksSort />
+      <DashboardLinksViewToggle />
       <DashboardLinksSearch
         class="max-sm:w-full"
       />

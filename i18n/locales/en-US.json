@@ -273,6 +273,13 @@
       "za": "Slug Z-A",
       "tip": "Experience: Only for loaded links"
     },
+    "view": {
+      "grid": "Grid View",
+      "minimal": "Minimal View",
+      "list": "List View",
+      "compact_url": "Compact URL",
+      "full_url": "Full URL"
+    },
     "update_failed": "Failed to update link",
     "create_failed": "Failed to create link",
     "ai_slug_failed": "Failed to generate AI slug"

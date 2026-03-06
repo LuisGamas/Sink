@@ -3,6 +3,8 @@ import type { CounterData, Link, LinkListResponse, LinkUpdateType } from '@/type
 import { useInfiniteScroll } from '@vueuse/core'
 import { Loader } from 'lucide-vue-next'
 
+import { cn } from '@/lib/utils'
+
 const linksStore = useDashboardLinksStore()
 const route = useRoute()
 
@@ -140,11 +142,15 @@ linksStore.onLinkUpdate(({ link, type }) => {
 
 <template>
   <section
-    class="
-      grid grid-cols-1 gap-4
-      md:grid-cols-2
-      lg:grid-cols-3
-    "
+    :class="cn(
+      linksStore.viewMode === 'list'
+        ? 'flex flex-col space-y-2'
+        : `
+          grid grid-cols-1 gap-4
+          md:grid-cols-2
+          lg:grid-cols-3
+        `,
+    )"
   >
     <DashboardLinksLink
       v-for="link in displayedLinks"
