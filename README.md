@@ -53,9 +53,12 @@
 - **🎨 Customizable Slug:** Support for personalized slugs and case sensitivity.
 - **🪄 AI Slug:** Leverage AI to generate slugs.
 - **⏰ Link Expiration:** Set expiration dates for your links.
+- **📅 Link Scheduling:** Set activation windows for your links (starts at).
+- **🏷️ Organization:** Organize links using Tags and Folders.
 - **📱 Device Routing:** Redirect iOS/Android users to different URLs (App Store links).
 - **🖼️ OpenGraph Preview:** Custom social media previews with title, description, and image.
 - **📊 Real-time Analytics:** Live 3D globe visualization and real-time event logs.
+- **🚀 Advanced Management:** Instant search, sort, and filter powered by Cloudflare D1.
 - **🔲 QR Code:** Generate QR codes for your short links.
 - **📦 Import/Export:** Bulk migration via JSON/CSV files.
 - **🌍 Multi-language:** Full i18n support for the dashboard.
@@ -79,7 +82,8 @@ Site Token: SinkCool
 ## 🧱 Technologies Used
 
 - **Framework**: [Nuxt](https://nuxt.com/)
-- **Database**: [Cloudflare Workers KV](https://developers.cloudflare.com/kv/)
+- **Database (Fast Path)**: [Cloudflare Workers KV](https://developers.cloudflare.com/kv/)
+- **Database (Management)**: [Cloudflare D1](https://developers.cloudflare.com/d1/)
 - **Analytics Engine**: [Cloudflare Workers Analytics Engine](https://developers.cloudflare.com/analytics/)
 - **UI Components**: [shadcn-vue](https://www.shadcn-vue.com/)
 - **Styling:** [Tailwind CSS](https://tailwindcss.com/)
@@ -94,7 +98,7 @@ We welcome your contributions and PRs.
 - [x] Raycast Extension - [Raycast-Sink](https://github.com/foru17/raycast-sink)
 - [x] Apple Shortcuts - [Sink Shortcuts](https://s.search1api.com/sink001)
 - [x] iOS App - [Sink](https://apps.apple.com/app/id6745417598)
-- [ ] Enhanced Link Management (with Cloudflare D1)
+- [x] Enhanced Link Management (with Cloudflare D1)
 - [ ] Analytics Enhancements (Support for merging filter conditions)
 - [ ] Dashboard Performance Optimization (Infinite loading)
 - [ ] Units Test
