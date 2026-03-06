@@ -31,6 +31,13 @@
       "dataset": "sink"
     }
   ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "sink-db",
+      "database_id": "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" // IMPORTANT: Change this to your D1 database ID
+    }
+  ],
   "kv_namespaces": [
     {
       "binding": "KV",
