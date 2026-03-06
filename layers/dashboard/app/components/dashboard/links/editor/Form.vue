@@ -32,6 +32,11 @@ const form = useForm({
     expiration: props.link.expiration
       ? unix2date(props.link.expiration)
       : undefined,
+    startsAt: props.link.startsAt
+      ? unix2date(props.link.startsAt)
+      : undefined,
+    tags: props.link.tags ?? [],
+    folder: props.link.folder ?? '',
     google: props.link.google ?? '',
     apple: props.link.apple ?? '',
     title: props.link.title ?? '',
@@ -51,6 +56,11 @@ const form = useForm({
         expiration: value.expiration
           ? date2unix(value.expiration, 'end')
           : undefined,
+        startsAt: value.startsAt
+          ? date2unix(value.startsAt, 'start')
+          : undefined,
+        tags: value.tags?.length ? value.tags : undefined,
+        folder: value.folder || undefined,
         google: value.google || undefined,
         apple: value.apple || undefined,
         title: value.title || undefined,

@@ -6,9 +6,10 @@ export type { Link }
 
 export type LinkUpdateType = 'create' | 'edit' | 'delete'
 
-// Form data derived from Link, with DateValue for expiration and required strings for optional fields
-type LinkFormFields = Omit<Link, 'id' | 'createdAt' | 'updatedAt' | 'expiration'> & {
+// Form data derived from Link, with DateValue for expiration/startsAt and required strings for optional fields
+type LinkFormFields = Omit<Link, 'id' | 'createdAt' | 'updatedAt' | 'expiration' | 'startsAt'> & {
   expiration: DateValue | undefined
+  startsAt: DateValue | undefined
 }
 
 export type LinkFormData = {
