@@ -16,8 +16,15 @@ const id = inject(LINK_ID_KEY, computed(() => undefined))
 const analysisStore = useDashboardAnalysisStore()
 
 async function getLinkCounters() {
+  const apiPath = '/api/stats/counters'
+  const cached = analysisStore.getFromCache(apiPath)
+  if (cached) {
+    counters.value = cached?.[0] ?? defaultData
+    return
+  }
+
   counters.value = defaultData
-  const result = await useAPI<{ data: CounterData[] }>('/api/stats/counters', {
+  const result = await useAPI<{ data: CounterData[] }>(apiPath, {
     query: {
       id: id.value,
       startAt: analysisStore.dateRange.startAt,
@@ -25,7 +32,9 @@ async function getLinkCounters() {
       ...analysisStore.filters,
     },
   })
-  counters.value = result.data?.[0] ?? defaultData
+  const data = result.data?.[0] ?? defaultData
+  counters.value = data
+  analysisStore.setToCache(apiPath, result.data)
 }
 
 watchThrottled([() => analysisStore.dateRange, () => analysisStore.filters], getLinkCounters, {

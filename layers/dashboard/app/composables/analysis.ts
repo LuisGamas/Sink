@@ -2,7 +2,7 @@ import { defineStore } from '#imports'
 import { getLocalTimeZone, now, startOfMonth, startOfWeek } from '@internationalized/date'
 import { useUrlSearchParams } from '@vueuse/core'
 import { safeDestr } from 'destr'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { date2unix, getLocale } from '@/utils/time'
 
 function computeDateRange(name: string): [number, number] {
@@ -31,9 +31,38 @@ export const useDashboardAnalysisStore = defineStore('dashboard-analysis', () =>
   const datePreset = ref<string | null>('last-7d')
   const filters = ref<Record<string, string>>({})
 
+  // Cache for analytics data
+  const cache = ref<Record<string, { data: any, key: string }>>({})
+  const currentCacheKey = computed(() => {
+    return JSON.stringify({
+      range: dateRange.value,
+      filters: filters.value,
+    })
+  })
+
+  function getFromCache(apiPath: string) {
+    const entry = cache.value[apiPath]
+    if (entry && entry.key === currentCacheKey.value) {
+      return entry.data
+    }
+    return null
+  }
+
+  function setToCache(apiPath: string, data: any) {
+    cache.value[apiPath] = {
+      data,
+      key: currentCacheKey.value,
+    }
+  }
+
+  function invalidateCache() {
+    cache.value = {}
+  }
+
   function updateDateRange(range: [number, number]) {
     dateRange.value.startAt = range[0]
     dateRange.value.endAt = range[1]
+    invalidateCache()
   }
 
   function selectPreset(name: string) {
@@ -43,10 +72,12 @@ export const useDashboardAnalysisStore = defineStore('dashboard-analysis', () =>
 
   function updateFilter(type: string, value: string) {
     filters.value[type] = value
+    invalidateCache()
   }
 
   function clearFilters() {
     filters.value = {}
+    invalidateCache()
   }
 
   // URL > Store > Default, then enable URL sync
@@ -107,6 +138,9 @@ export const useDashboardAnalysisStore = defineStore('dashboard-analysis', () =>
     dateRange,
     datePreset,
     filters,
+    getFromCache,
+    setToCache,
+    invalidateCache,
     updateDateRange,
     selectPreset,
     updateFilter,

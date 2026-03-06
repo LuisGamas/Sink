@@ -65,9 +65,23 @@ function getCellColor(weekday: number, hour: number): string {
 }
 
 async function getHeatmapData() {
+  const apiPath = '/api/stats/heatmap'
+  const cached = analysisStore.getFromCache(apiPath)
+  if (cached) {
+    heatmapData.value = (cached || []).map((item: any) => ({
+      ...item,
+      visitors: +item.visitors,
+      visits: +item.visits,
+      weekday: +item.weekday,
+      hour: +item.hour,
+    }))
+    isLoaded.value = true
+    return
+  }
+
   isLoaded.value = false
   const { startAt, endAt } = effectiveTimeRange.value
-  const result = await useAPI<{ data: HeatmapDataPoint[] }>('/api/stats/heatmap', {
+  const result = await useAPI<{ data: HeatmapDataPoint[] }>(apiPath, {
     query: {
       id: id.value,
       clientTimezone: getTimeZone(),
@@ -76,13 +90,15 @@ async function getHeatmapData() {
       ...effectiveFilters.value,
     },
   })
-  heatmapData.value = (result.data || []).map(item => ({
+  const data = (result.data || []).map(item => ({
     ...item,
     visitors: +item.visitors,
     visits: +item.visits,
     weekday: +item.weekday,
     hour: +item.hour,
   }))
+  heatmapData.value = data
+  analysisStore.setToCache(apiPath, result.data)
   await nextTick()
   isLoaded.value = true
 }
