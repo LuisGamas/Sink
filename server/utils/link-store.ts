@@ -21,12 +21,52 @@ export function buildShortLink(event: H3Event, slug: string): string {
 
 export async function putLink(event: H3Event, link: Link): Promise<void> {
   const { cloudflare } = event.context
-  const { KV } = cloudflare.env
+  const { KV, DB } = cloudflare.env
   const expiration = getExpiration(event, link.expiration)
 
   const linkToStore = { ...link }
   if (linkToStore.password) {
     linkToStore.password = await hashPassword(linkToStore.password)
+  }
+
+  // Dual-write to D1 if available
+  if (DB) {
+    try {
+      await DB.prepare(
+        `INSERT OR REPLACE INTO links (
+          id, url, slug, comment, created_at, updated_at, expiration, starts_at,
+          title, description, image, apple, google, cloaking, redirect_with_query,
+          password, unsafe, tags, folder
+        ) VALUES (
+          ?, ?, ?, ?, ?, ?, ?, ?,
+          ?, ?, ?, ?, ?, ?, ?,
+          ?, ?, ?, ?
+        )`,
+      ).bind(
+        linkToStore.id,
+        linkToStore.url,
+        linkToStore.slug,
+        linkToStore.comment || null,
+        linkToStore.createdAt,
+        linkToStore.updatedAt,
+        linkToStore.expiration || null,
+        linkToStore.startsAt || null,
+        linkToStore.title || null,
+        linkToStore.description || null,
+        linkToStore.image || null,
+        linkToStore.apple || null,
+        linkToStore.google || null,
+        linkToStore.cloaking ? 1 : 0,
+        linkToStore.redirectWithQuery ? 1 : 0,
+        linkToStore.password || null,
+        linkToStore.unsafe ? 1 : 0,
+        linkToStore.tags ? JSON.stringify(linkToStore.tags) : null,
+        linkToStore.folder || null,
+      ).run()
+    }
+    catch (e) {
+      console.error('Failed to sync link to D1:', e)
+    }
   }
 
   await KV.put(`link:${linkToStore.slug}`, JSON.stringify(linkToStore), {
@@ -35,6 +75,9 @@ export async function putLink(event: H3Event, link: Link): Promise<void> {
       expiration,
       url: withoutQuery(linkToStore.url),
       comment: linkToStore.comment,
+      tags: linkToStore.tags,
+      folder: linkToStore.folder,
+      startsAt: linkToStore.startsAt,
     },
   })
 }
@@ -54,7 +97,17 @@ export async function getLinkWithMetadata(event: H3Event, slug: string): Promise
 
 export async function deleteLink(event: H3Event, slug: string): Promise<void> {
   const { cloudflare } = event.context
-  const { KV } = cloudflare.env
+  const { KV, DB } = cloudflare.env
+
+  if (DB) {
+    try {
+      await DB.prepare('DELETE FROM links WHERE slug = ?').bind(slug).run()
+    }
+    catch (e) {
+      console.error('Failed to delete link from D1:', e)
+    }
+  }
+
   await KV.delete(`link:${slug}`)
 }
 
