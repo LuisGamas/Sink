@@ -27,9 +27,6 @@ const defaultOpenItems = computed(() => {
   if (props.form.getFieldValue('expiration') || props.form.getFieldValue('startsAt')) {
     items.push('scheduling')
   }
-  if (props.form.getFieldValue('tags')?.length || props.form.getFieldValue('folder')) {
-    items.push('organization')
-  }
   if (props.form.getFieldValue('title') || props.form.getFieldValue('description') || props.form.getFieldValue('image')) {
     items.push('og')
   }
@@ -131,45 +128,6 @@ const defaultOpenItems = computed(() => {
               <FieldError
                 v-if="isInvalid(field)"
                 :errors="formatErrors(field.state.meta.errors)"
-              />
-            </Field>
-          </props.form.Field>
-        </FieldGroup>
-      </AccordionContent>
-    </AccordionItem>
-
-    <AccordionItem value="organization">
-      <AccordionTrigger>{{ $t('links.form.organization') }}</AccordionTrigger>
-      <AccordionContent class="px-1">
-        <FieldGroup>
-          <props.form.Field v-slot="{ field }" name="folder">
-            <Field>
-              <FieldLabel :for="field.name">
-                {{ $t('links.form.folder') }}
-              </FieldLabel>
-              <Input
-                :id="field.name"
-                :name="field.name"
-                :model-value="field.state.value"
-                :placeholder="$t('links.form.folder_placeholder')"
-                @blur="field.handleBlur"
-                @input="field.handleChange(($event.target as HTMLInputElement).value)"
-              />
-            </Field>
-          </props.form.Field>
-
-          <props.form.Field v-slot="{ field }" name="tags">
-            <Field>
-              <FieldLabel :for="field.name">
-                {{ $t('links.form.tags') }}
-              </FieldLabel>
-              <Input
-                :id="field.name"
-                :name="field.name"
-                :model-value="field.state.value?.join(', ')"
-                :placeholder="$t('links.form.tags_placeholder')"
-                @blur="field.handleBlur"
-                @input="e => field.handleChange((e.target as HTMLInputElement).value.split(',').map(s => s.trim()).filter(Boolean))"
               />
             </Field>
           </props.form.Field>

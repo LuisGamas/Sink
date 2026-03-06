@@ -4,12 +4,21 @@ import { useInfiniteScroll } from '@vueuse/core'
 import { Loader } from 'lucide-vue-next'
 
 const linksStore = useDashboardLinksStore()
+const route = useRoute()
 
 const links = ref<Link[]>([])
 const listComplete = ref(false)
 const listError = ref(false)
 const limit = 24
 let cursor = ''
+
+// Watch for route query changes to filter by folder or tag
+watch(() => [route.query.folder, route.query.tag], () => {
+  links.value = []
+  cursor = ''
+  listComplete.value = false
+  getLinks()
+}, { deep: true })
 
 const countersMap = ref<Record<string, CounterData>>({})
 provide('linksCountersMap', countersMap)
@@ -73,6 +82,8 @@ async function getLinks() {
       query: {
         limit,
         cursor,
+        folder: route.query.folder as string,
+        tag: route.query.tag as string,
       },
     })
     const newLinks = data.links.filter(Boolean)

@@ -119,6 +119,8 @@ export async function linkExists(event: H3Event, slug: string): Promise<boolean>
 interface ListLinksOptions {
   limit: number
   cursor?: string
+  folder?: string
+  tag?: string
 }
 
 interface ListLinksResult {
@@ -160,9 +162,28 @@ export async function listLinks(event: H3Event, options: ListLinksOptions): Prom
       const limit = options.limit
       const offset = options.cursor ? Number.parseInt(options.cursor) : 0
 
-      const { results } = await DB.prepare('SELECT * FROM links ORDER BY created_at DESC LIMIT ? OFFSET ?')
-        .bind(limit, offset)
-        .all()
+      let query = 'SELECT * FROM links'
+      const params: any[] = []
+      const whereClauses: string[] = []
+
+      if (options.folder) {
+        whereClauses.push('folder = ?')
+        params.push(options.folder)
+      }
+
+      if (options.tag) {
+        whereClauses.push('tags LIKE ?')
+        params.push(`%"${options.tag}"%`)
+      }
+
+      if (whereClauses.length) {
+        query += ` WHERE ${whereClauses.join(' AND ')}`
+      }
+
+      query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?'
+      params.push(limit, offset)
+
+      const { results } = await DB.prepare(query).bind(...params).all()
 
       const links = results.map(mapRowToLink)
 
@@ -183,18 +204,31 @@ export async function listLinks(event: H3Event, options: ListLinksOptions): Prom
     cursor: options.cursor || undefined,
   })
 
-  const links = await Promise.all(
+  let links = await Promise.all(
     (list.keys || []).map(async (key: { name: string }) => {
       const { metadata, value: link } = await KV.getWithMetadata(key.name, { type: 'json' }) as { metadata: Record<string, unknown> | null, value: Link | null }
       if (link) {
         return {
           ...(metadata ?? {}),
           ...link,
-        }
+        } as Link
       }
       return link
     }),
   )
+
+  // KV Manual filtering
+  if (options.folder || options.tag) {
+    links = links.filter((link) => {
+      if (!link)
+        return false
+      if (options.folder && link.folder !== options.folder)
+        return false
+      if (options.tag && (!link.tags || !link.tags.includes(options.tag)))
+        return false
+      return true
+    })
+  }
 
   return {
     links,

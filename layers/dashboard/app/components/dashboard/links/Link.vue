@@ -5,6 +5,9 @@ import { CalendarPlus2, Clock, Copy, CopyCheck, Eraser, Flame, Folder, Hourglass
 import { parseURL } from 'ufo'
 import { toast } from 'vue-sonner'
 
+import { cn } from '@/lib/utils'
+import { getFolderColor, getTagColor } from '@/utils/color'
+
 const props = defineProps<{
   link: Link
   selected?: boolean
@@ -283,16 +286,18 @@ const isExpired = computed(() => props.link.expiration && props.link.expiration 
             v-if="link.folder || link.tags?.length" class="flex flex-wrap gap-1"
           >
             <Badge
-              v-if="link.folder" variant="outline" class="
-                px-1 py-0 text-[10px] font-normal
-              "
+              v-if="link.folder" variant="outline" :class="cn(
+                'border-transparent px-1 py-0 text-[10px] font-normal',
+                getFolderColor(link.folder),
+              )"
             >
               <Folder class="mr-1 h-3 w-3" /> {{ link.folder }}
             </Badge>
             <Badge
-              v-for="tag in link.tags" :key="tag" variant="secondary" class="
-                px-1 py-0 text-[10px] font-normal
-              "
+              v-for="tag in link.tags" :key="tag" variant="secondary" :class="cn(
+                'border-transparent px-1 py-0 text-[10px] font-normal',
+                getTagColor(tag),
+              )"
             >
               <Tag class="mr-1 h-3 w-3" /> {{ tag }}
             </Badge>
