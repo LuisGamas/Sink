@@ -1,6 +1,6 @@
 # Deployment on Cloudflare Workers
 
-1. [Fork](https://github.com/miantiao-me/Sink/fork) the repository to your GitHub account.
+1. [Fork](https://github.com/LuisGamas/Sink/fork) the repository to your GitHub account.
 2. Create storage resources:
    - **KV**: Create a [KV namespace](https://developers.cloudflare.com/kv/) (under **Storage & Databases** -> **KV**), and copy the namespace ID.
    - **D1**: Create a [D1 database](https://developers.cloudflare.com/d1/) named `sink-db` (under **Storage & Databases** -> **D1**) and copy the Database ID.

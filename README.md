@@ -1,7 +1,9 @@
 # ⚡ Sink (Gamas Edition)
 
+---
 > [!NOTE]
 > This is a customized fork of the original [Sink](https://github.com/miantiao-me/Sink) project. It has been detached and modified to meet specific personal requirements and enhancements. While this version includes advanced features like D1 integration and UI optimizations, the original credits remain with the initial author. If you are looking for the general version, please visit the original repository. You are free to use this version if its enhancements suit your needs.
+---
 
 **A Simple / Speedy / Secure Link Shortener with Analytics, 100% run on Cloudflare.**
 
@@ -162,12 +164,8 @@ We currently do not support native MCP Server, but we have OpenAPI documentation
 
 ## 💖 Credits
 
-1. [**Cloudflare**](https://www.cloudflare.com/)
-2. [**NuxtHub**](https://hub.nuxt.com/)
-3. [**Astroship**](https://astroship.web3templates.com/)
-4. [**Tailark**](https://tailark.com/)
-
-## ☕ Sponsor
-
-1. [Follow Me on X(Twitter)](https://404.li/x).
-2. [Become a sponsor to on GitHub](https://github.com/sponsors/miantiao-me).
+1. Original Project - [**miantiao-me**](https://github.com/miantiao-me)
+2. [**Cloudflare**](https://www.cloudflare.com/)
+3. [**NuxtHub**](https://hub.nuxt.com/)
+4. [**Astroship**](https://astroship.web3templates.com/)
+5. [**Tailark**](https://tailark.com/)
