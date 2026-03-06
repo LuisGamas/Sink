@@ -86,6 +86,8 @@ export default eventHandler(async (event) => {
       const existingLink = await getLink(event, slug)
 
       if (existingLink) {
+        // Even if it exists, we call putLink to ensure it's synced to D1
+        await putLink(event, existingLink as any)
         result.skippedItems.push({ index: i, slug, url: linkData.url })
         result.skipped++
         continue

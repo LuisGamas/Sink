@@ -88,7 +88,7 @@ async function getLinks() {
         tag: route.query.tag as string,
       },
     })
-    const newLinks = data.links.filter(Boolean)
+    const newLinks = data.links.filter(l => l && !links.value.some(existing => existing.id === l.id))
     links.value = links.value.concat(newLinks)
     cursor = data.cursor
     listComplete.value = data.list_complete

@@ -109,3 +109,11 @@ You can customize your dashboard layout using the view toggle buttons in the hea
 - **Minimal**: Compact cards without descriptions, ideal for scanning many links.
 - **List**: A horizontal layout optimized for desktop management.
 - **Compact URL**: An option to visually shorten your domain to `...` while keeping the full link in the clipboard when copied. Preference is saved locally in your browser.
+
+## 14. How do I migrate my old KV links to the new D1 database?
+
+If you have links created before the D1 integration, they will still work for redirection but won't appear in the dashboard search or sidebar. To migrate them:
+1. Go to **Import/Export** in your dashboard.
+2. Click **Export All** to download your links as a JSON file.
+3. Click **Import** and select the same JSON file you just downloaded.
+4. The system will detect the existing links in KV and automatically create their counterparts in the D1 database. Your links will now appear in the dashboard and sidebar.
