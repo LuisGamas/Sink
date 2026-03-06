@@ -7,6 +7,11 @@ import { toast } from 'vue-sonner'
 
 const props = defineProps<{
   link: Link
+  selected?: boolean
+}>()
+
+const emit = defineEmits<{
+  toggleSelect: [slug: string]
 }>()
 
 const { t } = useI18n()
@@ -36,13 +41,27 @@ function copyLink() {
 </script>
 
 <template>
-  <Card class="h-full">
+  <Card class="group/card relative h-full">
+    <div
+      class="
+        absolute top-3 left-3 z-10 opacity-0 transition-opacity
+        group-hover/card:opacity-100
+      "
+      :class="{ 'opacity-100': selected }"
+    >
+      <Checkbox
+        :checked="selected"
+        @update:checked="emit('toggleSelect', link.slug)"
+        @click.stop
+      />
+    </div>
     <CardContent class="flex-1">
       <NuxtLink
         class="flex h-full flex-col space-y-3"
+        :class="{ 'opacity-60': selected }"
         :to="`/dashboard/link?slug=${link.slug}`"
       >
-        <div class="flex items-center justify-center space-x-3">
+        <div class="flex items-center justify-center space-x-3 pl-6">
           <Avatar>
             <AvatarImage
               :src="linkIcon"
