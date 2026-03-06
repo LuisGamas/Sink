@@ -10,7 +10,7 @@ export default eventHandler(async (event) => {
 
   if (!env.R2) {
     throw createError({
-      status: 500,
+      status: 501,
       message: 'R2 binding not configured',
     })
   }

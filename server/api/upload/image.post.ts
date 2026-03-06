@@ -28,6 +28,10 @@ export default eventHandler(async (event) => {
   const { cloudflare } = event.context
   const { R2 } = cloudflare.env
 
+  if (!R2) {
+    throw createError({ status: 501, statusText: 'R2 storage is not configured' })
+  }
+
   const formData = await readFormData(event)
   const file = formData.get('file') as File | null
   const slug = formData.get('slug') as string | null

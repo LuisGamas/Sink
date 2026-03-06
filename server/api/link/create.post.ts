@@ -65,8 +65,26 @@ export default eventHandler(async (event) => {
     })
   }
 
+  // Duplicate URL detection
+  let duplicatedLink: Link | null = null
+  const { cloudflare } = event.context
+  const { DB } = cloudflare.env
+  if (DB) {
+    try {
+      const { results } = await DB.prepare('SELECT * FROM links WHERE url = ? LIMIT 1')
+        .bind(link.url)
+        .all()
+      if (results.length > 0) {
+        duplicatedLink = mapRowToLink(results[0])
+      }
+    }
+    catch (e) {
+      console.error('Failed to detect duplicate URL:', e)
+    }
+  }
+
   await putLink(event, link)
   setResponseStatus(event, 201)
   const shortLink = buildShortLink(event, link.slug)
-  return { link, shortLink }
+  return { link, shortLink, duplicatedLink }
 })

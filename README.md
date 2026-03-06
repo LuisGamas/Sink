@@ -1,4 +1,9 @@
-# ⚡ Sink
+# ⚡ Sink (Gamas Edition)
+
+---
+> [!NOTE]
+> This is a customized fork of the original [Sink](https://github.com/miantiao-me/Sink) project. It has been detached and modified to meet specific personal requirements and enhancements. While this version includes advanced features like D1 integration and UI optimizations, the original credits remain with the initial author. If you are looking for the general version, please visit the original repository. You are free to use this version if its enhancements suit your needs.
+---
 
 **A Simple / Speedy / Secure Link Shortener with Analytics, 100% run on Cloudflare.**
 
@@ -53,9 +58,14 @@
 - **🎨 Customizable Slug:** Support for personalized slugs and case sensitivity.
 - **🪄 AI Slug:** Leverage AI to generate slugs.
 - **⏰ Link Expiration:** Set expiration dates for your links.
+- **📅 Link Scheduling:** Set activation windows for your links (starts at).
+- **🏷️ Organization:** Organize links using Tags and Folders.
 - **📱 Device Routing:** Redirect iOS/Android users to different URLs (App Store links).
 - **🖼️ OpenGraph Preview:** Custom social media previews with title, description, and image.
 - **📊 Real-time Analytics:** Live 3D globe visualization and real-time event logs.
+- **🚀 Advanced Management:** Instant search, sort, and filter powered by Cloudflare D1.
+- **🖥️ Custom View Modes:** Toggle between Grid, Minimal, and List views for better link management.
+- **✂️ Compact URL Display:** Visual option to simplify short link display (e.g., .../slug) while maintaining full functionality.
 - **🔲 QR Code:** Generate QR codes for your short links.
 - **📦 Import/Export:** Bulk migration via JSON/CSV files.
 - **🌍 Multi-language:** Full i18n support for the dashboard.
@@ -79,7 +89,8 @@ Site Token: SinkCool
 ## 🧱 Technologies Used
 
 - **Framework**: [Nuxt](https://nuxt.com/)
-- **Database**: [Cloudflare Workers KV](https://developers.cloudflare.com/kv/)
+- **Database (Fast Path)**: [Cloudflare Workers KV](https://developers.cloudflare.com/kv/)
+- **Database (Management)**: [Cloudflare D1](https://developers.cloudflare.com/d1/)
 - **Analytics Engine**: [Cloudflare Workers Analytics Engine](https://developers.cloudflare.com/analytics/)
 - **UI Components**: [shadcn-vue](https://www.shadcn-vue.com/)
 - **Styling:** [Tailwind CSS](https://tailwindcss.com/)
@@ -94,10 +105,10 @@ We welcome your contributions and PRs.
 - [x] Raycast Extension - [Raycast-Sink](https://github.com/foru17/raycast-sink)
 - [x] Apple Shortcuts - [Sink Shortcuts](https://s.search1api.com/sink001)
 - [x] iOS App - [Sink](https://apps.apple.com/app/id6745417598)
-- [ ] Enhanced Link Management (with Cloudflare D1)
+- [x] Enhanced Link Management (with Cloudflare D1)
 - [ ] Analytics Enhancements (Support for merging filter conditions)
-- [ ] Dashboard Performance Optimization (Infinite loading)
-- [ ] Units Test
+- [x] Dashboard Performance Optimization (Infinite loading)
+- [x] Units Test (Core API covered)
 
 ## 🏗️ Deployment
 
@@ -153,12 +164,8 @@ We currently do not support native MCP Server, but we have OpenAPI documentation
 
 ## 💖 Credits
 
-1. [**Cloudflare**](https://www.cloudflare.com/)
-2. [**NuxtHub**](https://hub.nuxt.com/)
-3. [**Astroship**](https://astroship.web3templates.com/)
-4. [**Tailark**](https://tailark.com/)
-
-## ☕ Sponsor
-
-1. [Follow Me on X(Twitter)](https://404.li/x).
-2. [Become a sponsor to on GitHub](https://github.com/sponsors/miantiao-me).
+1. Original Project - [**miantiao-me**](https://github.com/miantiao-me)
+2. [**Cloudflare**](https://www.cloudflare.com/)
+3. [**NuxtHub**](https://hub.nuxt.com/)
+4. [**Astroship**](https://astroship.web3templates.com/)
+5. [**Tailark**](https://tailark.com/)

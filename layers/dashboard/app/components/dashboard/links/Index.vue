@@ -3,13 +3,24 @@ import type { CounterData, Link, LinkListResponse, LinkUpdateType } from '@/type
 import { useInfiniteScroll } from '@vueuse/core'
 import { Loader } from 'lucide-vue-next'
 
+import { cn } from '@/lib/utils'
+
 const linksStore = useDashboardLinksStore()
+const route = useRoute()
 
 const links = ref<Link[]>([])
 const listComplete = ref(false)
 const listError = ref(false)
 const limit = 24
 let cursor = ''
+
+// Watch for route query changes to filter by folder or tag
+watch(() => [route.query.folder, route.query.tag], () => {
+  links.value = []
+  cursor = ''
+  listComplete.value = false
+  getLinks()
+}, { deep: true })
 
 const countersMap = ref<Record<string, CounterData>>({})
 provide('linksCountersMap', countersMap)
@@ -73,6 +84,8 @@ async function getLinks() {
       query: {
         limit,
         cursor,
+        folder: route.query.folder as string,
+        tag: route.query.tag as string,
       },
     })
     const newLinks = data.links.filter(Boolean)
@@ -111,6 +124,11 @@ function updateLinkList(link: Link, type: LinkUpdateType) {
     const index = links.value.findIndex(l => l.id === link.id)
     links.value.splice(index, 1)
   }
+  else if (type === 'delete-batch') {
+    // Handling batch delete event from store
+    const slugs = (link as any).slugs as string[]
+    links.value = links.value.filter(l => !slugs.includes(l.slug))
+  }
   else {
     links.value.unshift(link)
     linksStore.sortBy = 'newest'
@@ -124,33 +142,40 @@ linksStore.onLinkUpdate(({ link, type }) => {
 
 <template>
   <section
-    class="
-      grid grid-cols-1 gap-4
-      md:grid-cols-2
-      lg:grid-cols-3
-    "
+    :class="cn(
+      linksStore.viewMode === 'list'
+        ? 'flex flex-col space-y-2'
+        : `
+          grid grid-cols-1 gap-4
+          md:grid-cols-2
+          lg:grid-cols-3
+        `,
+    )"
   >
     <DashboardLinksLink
       v-for="link in displayedLinks"
       :key="link.id"
       :link="link"
+      :selected="linksStore.selectedSlugs.includes(link.slug)"
+      @toggle-select="linksStore.toggleSelect"
     />
   </section>
+
   <div
     v-if="isLoading"
-    class="flex items-center justify-center"
+    class="mt-8 flex items-center justify-center"
   >
     <Loader class="animate-spin" />
   </div>
   <div
     v-if="!isLoading && listComplete"
-    class="flex items-center justify-center text-sm"
+    class="mt-8 flex items-center justify-center text-sm text-muted-foreground"
   >
     {{ $t('links.no_more') }}
   </div>
   <div
     v-if="listError"
-    class="flex items-center justify-center text-sm"
+    class="mt-8 flex items-center justify-center text-sm"
   >
     {{ $t('links.load_failed') }}
     <Button variant="link" @click="getLinks">

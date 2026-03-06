@@ -38,6 +38,10 @@ const settingsItems = computed<NavItem[]>(() => [
     isActive: isActive('migrate'),
   },
 ])
+
+const { data: metadata } = await useAsyncData('sidebarMetadata', () => useAPI<{ folders: string[], tags: string[] }>('/api/link/metadata'), {
+  default: () => ({ folders: [], tags: [] }),
+})
 </script>
 
 <template>
@@ -70,6 +74,7 @@ const settingsItems = computed<NavItem[]>(() => [
     </SidebarHeader>
     <SidebarContent>
       <DashboardSidebarNavMain :platform-items="platformItems" :settings-items="settingsItems" />
+      <DashboardSidebarNavOrganization :folders="metadata.folders" :tags="metadata.tags" />
       <DashboardSidebarNavSecondary class="mt-auto" />
     </SidebarContent>
     <SidebarFooter>

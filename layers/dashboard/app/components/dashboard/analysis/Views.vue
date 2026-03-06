@@ -82,9 +82,20 @@ function parseTimeString(time: string): number {
 }
 
 async function getLinkViews() {
+  const apiPath = '/api/stats/views'
+  const cached = analysisStore.getFromCache(apiPath)
+  if (cached) {
+    views.value = (cached || []).map((item: any) => ({
+      ...item,
+      visitors: +item.visitors,
+      visits: +item.visits,
+    }))
+    return
+  }
+
   views.value = []
   const { startAt, endAt } = effectiveTimeRange.value
-  const result = await useAPI<{ data: ViewDataPoint[] }>('/api/stats/views', {
+  const result = await useAPI<{ data: ViewDataPoint[] }>(apiPath, {
     query: {
       id: id.value,
       unit: getUnit(startAt, endAt),
@@ -94,11 +105,13 @@ async function getLinkViews() {
       ...effectiveFilters.value,
     },
   })
-  views.value = (result.data || []).map(item => ({
+  const data = (result.data || []).map(item => ({
     ...item,
     visitors: +item.visitors,
     visits: +item.visits,
   }))
+  views.value = data
+  analysisStore.setToCache(apiPath, result.data)
 }
 
 watchThrottled(

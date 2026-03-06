@@ -19,12 +19,13 @@ const props = defineProps<{
 }>()
 
 const datePickerOpen = ref(false)
+const startsAtPickerOpen = ref(false)
 
 // Compute default open items based on existing values
 const defaultOpenItems = computed(() => {
   const items: string[] = []
-  if (props.form.getFieldValue('expiration')) {
-    items.push('expiration')
+  if (props.form.getFieldValue('expiration') || props.form.getFieldValue('startsAt')) {
+    items.push('scheduling')
   }
   if (props.form.getFieldValue('title') || props.form.getFieldValue('description') || props.form.getFieldValue('image')) {
     items.push('og')
@@ -41,48 +42,96 @@ const defaultOpenItems = computed(() => {
 
 <template>
   <Accordion type="multiple" :default-value="defaultOpenItems" class="w-full">
-    <AccordionItem value="expiration">
-      <AccordionTrigger>{{ $t('links.form.expiration') }}</AccordionTrigger>
+    <AccordionItem value="scheduling">
+      <AccordionTrigger>{{ $t('links.form.scheduling') }}</AccordionTrigger>
       <AccordionContent class="px-1">
-        <props.form.Field v-slot="{ field }" name="expiration">
-          <Field :data-invalid="isInvalid(field)">
-            <Popover v-model:open="datePickerOpen">
-              <PopoverTrigger as-child>
-                <Button
-                  :id="field.name"
-                  variant="outline"
-                  :class="cn(
-                    'w-full justify-start text-left font-normal',
-                    !field.state.value && 'text-muted-foreground',
-                  )"
-                >
-                  <CalendarIcon class="mr-2 h-4 w-4" />
-                  {{
-                    field.state.value
-                      ? field.state.value.toDate(getTimeZone()).toLocaleDateString()
-                      : $t('links.form.pick_date')
-                  }}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent class="w-auto p-0" align="start">
-                <Calendar
-                  :model-value="field.state.value"
-                  :default-placeholder="today(getTimeZone())"
-                  layout="month-and-year"
-                  initial-focus
-                  @update:model-value="(v: DateValue | undefined) => {
-                    field.handleChange(v)
-                    datePickerOpen = false
-                  }"
-                />
-              </PopoverContent>
-            </Popover>
-            <FieldError
-              v-if="isInvalid(field)"
-              :errors="formatErrors(field.state.meta.errors)"
-            />
-          </Field>
-        </props.form.Field>
+        <FieldGroup>
+          <props.form.Field v-slot="{ field }" name="startsAt">
+            <Field :data-invalid="isInvalid(field)">
+              <FieldLabel :for="field.name">
+                {{ $t('links.form.starts_at') }}
+              </FieldLabel>
+              <Popover v-model:open="startsAtPickerOpen">
+                <PopoverTrigger as-child>
+                  <Button
+                    :id="field.name"
+                    variant="outline"
+                    :class="cn(
+                      'w-full justify-start text-left font-normal',
+                      !field.state.value && 'text-muted-foreground',
+                    )"
+                  >
+                    <CalendarIcon class="mr-2 h-4 w-4" />
+                    {{
+                      field.state.value
+                        ? field.state.value.toDate(getTimeZone()).toLocaleDateString()
+                        : $t('links.form.pick_date')
+                    }}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent class="w-auto p-0" align="start">
+                  <Calendar
+                    :model-value="field.state.value"
+                    :default-placeholder="today(getTimeZone())"
+                    layout="month-and-year"
+                    initial-focus
+                    @update:model-value="(v: DateValue | undefined) => {
+                      field.handleChange(v)
+                      startsAtPickerOpen = false
+                    }"
+                  />
+                </PopoverContent>
+              </Popover>
+              <FieldError
+                v-if="isInvalid(field)"
+                :errors="formatErrors(field.state.meta.errors)"
+              />
+            </Field>
+          </props.form.Field>
+
+          <props.form.Field v-slot="{ field }" name="expiration">
+            <Field :data-invalid="isInvalid(field)">
+              <FieldLabel :for="field.name">
+                {{ $t('links.form.expiration') }}
+              </FieldLabel>
+              <Popover v-model:open="datePickerOpen">
+                <PopoverTrigger as-child>
+                  <Button
+                    :id="field.name"
+                    variant="outline"
+                    :class="cn(
+                      'w-full justify-start text-left font-normal',
+                      !field.state.value && 'text-muted-foreground',
+                    )"
+                  >
+                    <CalendarIcon class="mr-2 h-4 w-4" />
+                    {{
+                      field.state.value
+                        ? field.state.value.toDate(getTimeZone()).toLocaleDateString()
+                        : $t('links.form.pick_date')
+                    }}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent class="w-auto p-0" align="start">
+                  <Calendar
+                    :model-value="field.state.value"
+                    :default-placeholder="today(getTimeZone())"
+                    layout="month-and-year"
+                    initial-focus
+                    @update:model-value="(v: DateValue | undefined) => {
+                      field.handleChange(v)
+                      datePickerOpen = false
+                    }"
+                  />
+                </PopoverContent>
+              </Popover>
+              <FieldError
+                v-if="isInvalid(field)"
+                :errors="formatErrors(field.state.meta.errors)"
+              />
+            </Field>
+          </props.form.Field>
+        </FieldGroup>
       </AccordionContent>
     </AccordionItem>
 

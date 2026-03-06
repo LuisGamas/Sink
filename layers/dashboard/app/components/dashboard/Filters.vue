@@ -32,7 +32,10 @@ watch(() => props.filters?.slug, (newSlug) => {
 
 async function getLinks() {
   try {
-    links.value = await useAPI<Link[]>('/api/link/search')
+    const res = await useAPI<{ links: Link[] }>('/api/link/search', {
+      query: { limit: 100 },
+    })
+    links.value = res.links
   }
   catch (error) {
     console.error(error)
@@ -55,16 +58,33 @@ watchDebounced(selectedLinks, (value) => {
       role="combobox"
       :aria-expanded="isOpen"
       class="
-        flex w-full justify-between px-3
-        sm:w-48
+        flex h-auto min-h-9 w-full justify-between px-3 py-1.5
+        sm:w-auto sm:min-w-48
       "
     >
       <div
-        class="flex-1 truncate text-left" :class="selectedLinks.length ? `
-          text-foreground
-        ` : `text-muted-foreground`"
+        class="flex flex-wrap items-center gap-1 overflow-hidden"
       >
-        {{ selectedLinks.length ? selectedLinks.join(', ') : $t('dashboard.filter_placeholder') }}
+        <template v-if="selectedLinks.length">
+          <Badge
+            v-for="slug in selectedLinks.slice(0, 2)"
+            :key="slug"
+            variant="secondary"
+            class="h-5 px-1.5 text-[10px] font-medium"
+          >
+            {{ slug }}
+          </Badge>
+          <Badge
+            v-if="selectedLinks.length > 2"
+            variant="secondary"
+            class="h-5 px-1.5 text-[10px] font-medium"
+          >
+            +{{ selectedLinks.length - 2 }}
+          </Badge>
+        </template>
+        <span v-else class="text-sm text-muted-foreground">
+          {{ $t('dashboard.filter_placeholder') }}
+        </span>
       </div>
       <ChevronsUpDown class="ml-2 h-4 w-4 shrink-0 opacity-50" />
     </Button>

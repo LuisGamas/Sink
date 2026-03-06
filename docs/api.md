@@ -54,6 +54,9 @@ Content-Type: application/json
   "slug": "sink",
   "comment": "GitHub repo",
   "expiration": "2025-12-31T23:59:59Z",
+  "startsAt": "2024-06-01T00:00:00Z",
+  "tags": ["github", "opensource"],
+  "folder": "Projects",
   "ios": "https://apps.apple.com/app/id6745417598",
   "android": "https://play.google.com/store/apps/details?id=com.example",
   "ogTitle": "Sink - Link Shortener",
@@ -72,7 +75,10 @@ Content-Type: application/json
     "slug": "sink",
     "comment": "GitHub repo",
     "createdAt": 1718119809,
-    "updatedAt": 1718119809
+    "updatedAt": 1718119809,
+    "startsAt": 1717200000,
+    "tags": ["github", "opensource"],
+    "folder": "Projects"
   }
 }
 ```
@@ -85,6 +91,9 @@ Content-Type: application/json
 | `slug`              | `string`  | ❌       | Custom slug (auto-generated if omitted)                               |
 | `comment`           | `string`  | ❌       | Internal note for the link                                            |
 | `expiration`        | `string`  | ❌       | ISO 8601 expiration date                                              |
+| `startsAt`          | `string`  | ❌       | ISO 8601 activation date (link will be 404 until this date)           |
+| `tags`              | `string[]`| ❌       | List of tags for organization                                         |
+| `folder`            | `string`  | ❌       | Folder name for organization                                          |
 | `ios`               | `string`  | ❌       | iOS/macOS redirect URL                                                |
 | `android`           | `string`  | ❌       | Android redirect URL                                                  |
 | `ogTitle`           | `string`  | ❌       | OpenGraph title                                                       |

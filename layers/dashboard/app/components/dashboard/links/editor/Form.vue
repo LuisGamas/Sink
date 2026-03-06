@@ -32,6 +32,11 @@ const form = useForm({
     expiration: props.link.expiration
       ? unix2date(props.link.expiration)
       : undefined,
+    startsAt: props.link.startsAt
+      ? unix2date(props.link.startsAt)
+      : undefined,
+    tags: props.link.tags ?? [],
+    folder: props.link.folder ?? '',
     google: props.link.google ?? '',
     apple: props.link.apple ?? '',
     title: props.link.title ?? '',
@@ -51,6 +56,11 @@ const form = useForm({
         expiration: value.expiration
           ? date2unix(value.expiration, 'end')
           : undefined,
+        startsAt: value.startsAt
+          ? date2unix(value.startsAt, 'start')
+          : undefined,
+        tags: value.tags?.length ? value.tags : undefined,
+        folder: value.folder || undefined,
         google: value.google || undefined,
         apple: value.apple || undefined,
         title: value.title || undefined,
@@ -69,6 +79,7 @@ const form = useForm({
         },
       )
       emit('success', newLink)
+      refreshNuxtData(['sidebarMetadata', 'existingMetadata'])
       toast(props.isEdit ? t('links.update_success') : t('links.create_success'))
     }
     catch (error) {
@@ -144,7 +155,9 @@ const currentSlug = form.useStore(state => state.values.slug || '')
 
 const { previewMode } = useRuntimeConfig().public
 
-defineExpose({ randomSlug })
+const { data: existingMetadata } = await useAsyncData('existingMetadata', () => useAPI<{ folders: string[], tags: string[] }>('/api/link/metadata'), {
+  default: () => ({ folders: [], tags: [] }),
+})
 </script>
 
 <template>
@@ -263,6 +276,61 @@ defineExpose({ randomSlug })
           />
         </Field>
       </form.Field>
+
+      <div
+        class="
+          grid grid-cols-1 gap-4
+          sm:grid-cols-2
+        "
+      >
+        <form.Field
+          v-slot="{ field }"
+          name="folder"
+        >
+          <Field>
+            <FieldLabel :for="field.name">
+              {{ $t('links.form.folder') }}
+            </FieldLabel>
+            <div class="relative">
+              <Input
+                :id="field.name"
+                :name="field.name"
+                :model-value="field.state.value"
+                :placeholder="$t('links.form.folder_placeholder')"
+                list="existing-folders"
+                @blur="field.handleBlur"
+                @input="field.handleChange(($event.target as HTMLInputElement).value)"
+              />
+              <datalist id="existing-folders">
+                <option v-for="f in existingMetadata.folders" :key="f" :value="f" />
+              </datalist>
+            </div>
+          </Field>
+        </form.Field>
+
+        <form.Field
+          v-slot="{ field }"
+          name="tags"
+        >
+          <Field>
+            <FieldLabel :for="field.name">
+              {{ $t('links.form.tags') }}
+            </FieldLabel>
+            <Input
+              :id="field.name"
+              :name="field.name"
+              :model-value="field.state.value?.join(', ')"
+              :placeholder="$t('links.form.tags_placeholder')"
+              list="existing-tags"
+              @blur="field.handleBlur"
+              @input="e => field.handleChange((e.target as HTMLInputElement).value.split(',').map(s => s.trim()).filter(Boolean))"
+            />
+            <datalist id="existing-tags">
+              <option v-for="tagName in existingMetadata.tags" :key="tagName" :value="tagName" />
+            </datalist>
+          </Field>
+        </form.Field>
+      </div>
     </FieldGroup>
 
     <DashboardLinksEditorAdvanced

@@ -1,11 +1,19 @@
 # Deployment on Cloudflare Workers
 
-1. [Fork](https://github.com/miantiao-me/Sink/fork) the repository to your GitHub account.
-2. Create a [KV namespace](https://developers.cloudflare.com/kv/) (under **Storage & Databases** -> **KV**), and copy the namespace ID.
-3. Update the `kv_namespaces` ID in `wrangler.jsonc` with your own namespace ID.
+1. [Fork](https://github.com/LuisGamas/Sink/fork) the repository to your GitHub account.
+2. Create storage resources:
+   - **KV**: Create a [KV namespace](https://developers.cloudflare.com/kv/) (under **Storage & Databases** -> **KV**), and copy the namespace ID.
+   - **D1**: Create a [D1 database](https://developers.cloudflare.com/d1/) named `sink-db` (under **Storage & Databases** -> **D1**) and copy the Database ID.
+3. Update `wrangler.jsonc` with your own IDs:
+   - Update `kv_namespaces` ID.
+   - Update `d1_databases` ID for the `DB` binding.
 4. (_Optional_) For OpenGraph image upload, create an [R2 bucket](https://developers.cloudflare.com/r2/) named `sink` (or run `wrangler r2 bucket create sink`). If you don't need this feature, comment out the `r2_buckets` section in `wrangler.jsonc`.
-5. Create a project in [Cloudflare Workers](https://developers.cloudflare.com/workers/).
-6. Select the `Sink` repository and use the following build and deploy commands:
+5. Apply database migrations:
+   ```bash
+   npx wrangler d1 migrations apply sink-db --remote
+   ```
+6. Create a project in [Cloudflare Workers](https://developers.cloudflare.com/workers/).
+7. Select the `Sink` repository and use the following build and deploy commands:
    - **Build command**: `pnpm run build` or `npm run build`
    - **Deploy command**: `npx wrangler deploy`
 
