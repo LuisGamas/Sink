@@ -129,7 +129,7 @@ interface ListLinksResult {
   cursor?: string
 }
 
-function mapRowToLink(row: any): Link {
+export function mapRowToLink(row: any): Link {
   return {
     id: row.id,
     url: row.url,

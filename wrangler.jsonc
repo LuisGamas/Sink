@@ -35,7 +35,8 @@
     {
       "binding": "DB",
       "database_name": "sink-db",
-      "database_id": "062807cc-0da8-409b-a778-e232694df3fe" // IMPORTANT: Change this to your D1 database ID
+      "database_id": "062807cc-0da8-409b-a778-e232694df3fe", // IMPORTANT: Change this to your D1 database ID
+      "migrations_dir": "server/database/migrations"
     }
   ],
   "kv_namespaces": [
