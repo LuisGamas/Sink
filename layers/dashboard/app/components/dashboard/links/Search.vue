@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { Link } from '@/types'
-import { createReusableTemplate, useMagicKeys, useMediaQuery } from '@vueuse/core'
-import { useFuse } from '@vueuse/integrations/useFuse'
+import { createReusableTemplate, useClipboard, useMagicKeys, useMediaQuery } from '@vueuse/core'
+import { Copy, LinkIcon } from 'lucide-vue-next'
+import { toast } from 'vue-sonner'
 
 defineOptions({
   inheritAttrs: false,
@@ -10,19 +11,14 @@ const [TriggerTemplate, TriggerComponent] = createReusableTemplate()
 const [SearchTemplate, SearchComponent] = createReusableTemplate()
 
 const isDesktop = useMediaQuery('(min-width: 640px)')
+const { copy } = useClipboard()
 
 const router = useRouter()
 
 const isOpen = ref(false)
 const searchTerm = ref('')
 const links = ref<Link[]>([])
-
-const { results: filteredLinks } = useFuse(searchTerm, links, {
-  fuseOptions: {
-    keys: ['slug', 'url', 'comment'],
-  },
-  resultLimit: 20,
-})
+const isLoading = ref(false)
 
 const { Meta_K, Ctrl_K } = useMagicKeys({
   passive: false,
@@ -56,18 +52,42 @@ function selectLink(link: Link | undefined) {
   })
 }
 
-async function getLinks() {
+async function handleCopy(e: Event, slug: string) {
+  e.stopPropagation()
+  const shortLink = buildShortLink(window.location.origin, slug)
+  await copy(shortLink)
+  toast.success('Copied to clipboard', {
+    description: shortLink,
+  })
+}
+
+function buildShortLink(origin: string, slug: string) {
+  return `${origin}/${slug}`
+}
+
+async function getLinks(val: string) {
+  if (isLoading.value)
+    return
+  isLoading.value = true
   try {
-    links.value = await useAPI<Link[]>('/api/link/search')
+    // Optimized: Use the new paginated search API
+    const res = await useAPI<{ links: Link[] }>('/api/link/search', {
+      query: { query: val, limit: 20 },
+    })
+    links.value = res.links
   }
   catch (error) {
     console.error(error)
   }
+  finally {
+    isLoading.value = false
+  }
 }
 
-onMounted(() => {
-  getLinks()
-})
+// Debounce search to avoid too many API calls
+watch(searchTerm, (val) => {
+  getLinks(val)
+}, { immediate: true })
 </script>
 
 <template>
@@ -107,41 +127,73 @@ onMounted(() => {
     </Button>
   </TriggerTemplate>
   <SearchTemplate>
-    <Command class="h-auto">
+    <Command class="h-auto" :should-filter="false">
       <CommandInput v-model="searchTerm" :placeholder="$t('links.search_placeholder')" autocomplete="off" />
     </Command>
     <!-- disable command search -->
-    <Command class="flex-1">
+    <Command class="flex-1" :should-filter="false">
       <CommandList
         class="
           max-h-none
           sm:max-h-[300px]
         "
       >
-        <CommandEmpty>
+        <CommandEmpty v-if="!isLoading">
           {{ $t('links.no_results') }}
         </CommandEmpty>
-        <CommandGroup v-if="filteredLinks.length" :heading="$t('links.group_title')">
+        <div
+          v-if="isLoading" class="
+            flex items-center justify-center py-6 text-sm text-muted-foreground
+          "
+        >
+          {{ $t('common.loading') }}...
+        </div>
+        <CommandGroup v-if="links.length" :heading="$t('links.group_title')">
           <CommandItem
-            v-for="link in filteredLinks" :key="link.item?.id" class="
-              cursor-pointer
-            " :value="link.item" @select="selectLink(link.item)"
+            v-for="link in links" :key="link.slug" class="
+              group flex cursor-pointer items-center justify-between py-2
+            " :value="link.slug" @select="selectLink(link)"
           >
-            <div class="flex w-full gap-1">
-              <div class="inline-flex flex-1 items-center gap-1 overflow-hidden">
-                <div class="text-sm font-medium">
-                  {{ link.item?.slug }}
+            <div class="flex flex-1 items-center gap-3 overflow-hidden">
+              <div
+                class="
+                  flex size-8 shrink-0 items-center justify-center rounded-md
+                  border bg-muted/50 text-muted-foreground
+                "
+              >
+                <LinkIcon class="size-4" />
+              </div>
+              <div class="flex flex-1 flex-col overflow-hidden">
+                <div class="flex items-center gap-2">
+                  <span class="truncate text-sm leading-none font-semibold">
+                    {{ link.slug }}
+                  </span>
+                  <Badge
+                    v-if="link.comment" variant="outline" class="
+                      h-4 px-1 text-[10px] font-normal
+                    "
+                  >
+                    {{ link.comment }}
+                  </Badge>
                 </div>
-                <div class="flex-1 truncate text-xs text-muted-foreground">
-                  ({{ link.item?.url }})
+                <div class="mt-0.5 truncate text-xs text-muted-foreground">
+                  {{ link.url }}
                 </div>
               </div>
-              <Badge v-if="link.item?.comment" variant="secondary">
-                <div class="max-w-24 truncate">
-                  {{ link.item?.comment }}
-                </div>
-              </Badge>
             </div>
+
+            <Button
+              variant="ghost"
+              size="icon"
+              class="
+                size-8 opacity-0 transition-opacity
+                group-hover:opacity-100
+                hover:bg-primary/10 hover:text-primary
+              "
+              @click="handleCopy($event, link.slug)"
+            >
+              <Copy class="size-3.5" />
+            </Button>
           </CommandItem>
         </CommandGroup>
       </CommandList>
