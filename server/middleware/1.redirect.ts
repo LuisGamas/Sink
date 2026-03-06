@@ -72,6 +72,13 @@ export default eventHandler(async (event) => {
     }
 
     if (link) {
+      if (link.startsAt && link.startsAt > Math.floor(Date.now() / 1000)) {
+        if (notFoundRedirect) {
+          return sendRedirect(event, notFoundRedirect, 302)
+        }
+        throw createError({ status: 404, statusText: 'Link not yet active' })
+      }
+
       let locale: RedirectLocale | undefined
       const getLocale = () => {
         locale ??= resolveRedirectLocale(getHeader(event, 'accept-language'))
