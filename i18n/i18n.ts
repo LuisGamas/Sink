@@ -55,6 +55,12 @@ const locales: LocaleObject[] = [
     name: 'Português (BR)',
     emoji: '🇧🇷',
   },
+  {
+    code: 'es-ES',
+    file: 'es-ES.json',
+    name: 'Español',
+    emoji: '🇪🇸',
+  },
 ]
 
 function buildLocales() {
