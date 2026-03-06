@@ -40,6 +40,29 @@ export default eventHandler(async (event) => {
   const { query } = getQuery(event) as { query?: string }
   const finalSearchTerm = (searchQuery || query || '').toLowerCase()
 
+  const { DB } = cloudflare.env
+  if (DB) {
+    try {
+      const offset = initialCursor ? Number.parseInt(initialCursor) : 0
+      const searchTerm = `%${finalSearchTerm}%`
+
+      const { results } = await DB.prepare(
+        'SELECT slug, url, comment FROM links WHERE slug LIKE ? OR url LIKE ? LIMIT ? OFFSET ?',
+      ).bind(searchTerm, searchTerm, limit, offset).all()
+
+      const links = results as Link[]
+
+      return {
+        links,
+        list_complete: links.length < limit,
+        cursor: (offset + limit).toString(),
+      }
+    }
+    catch (e) {
+      console.error('Failed to search links in D1, falling back to KV:', e)
+    }
+  }
+
   const list: Link[] = []
   let nextCursor = initialCursor
   const MAX_SCAN = 1000 // Limit safety to prevent infinite loops during scans

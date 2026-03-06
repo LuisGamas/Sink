@@ -127,9 +127,56 @@ interface ListLinksResult {
   cursor?: string
 }
 
+function mapRowToLink(row: any): Link {
+  return {
+    id: row.id,
+    url: row.url,
+    slug: row.slug,
+    comment: row.comment,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    expiration: row.expiration,
+    startsAt: row.starts_at,
+    title: row.title,
+    description: row.description,
+    image: row.image,
+    apple: row.apple,
+    google: row.google,
+    cloaking: Boolean(row.cloaking),
+    redirectWithQuery: Boolean(row.redirect_with_query),
+    password: row.password,
+    unsafe: Boolean(row.unsafe),
+    tags: row.tags ? JSON.parse(row.tags) : undefined,
+    folder: row.folder,
+  }
+}
+
 export async function listLinks(event: H3Event, options: ListLinksOptions): Promise<ListLinksResult> {
   const { cloudflare } = event.context
-  const { KV } = cloudflare.env
+  const { KV, DB } = cloudflare.env
+
+  if (DB) {
+    try {
+      const limit = options.limit
+      const offset = options.cursor ? Number.parseInt(options.cursor) : 0
+
+      const { results } = await DB.prepare('SELECT * FROM links ORDER BY created_at DESC LIMIT ? OFFSET ?')
+        .bind(limit, offset)
+        .all()
+
+      const links = results.map(mapRowToLink)
+
+      return {
+        links,
+        list_complete: links.length < limit,
+        cursor: (offset + limit).toString(),
+      }
+    }
+    catch (e) {
+      console.error('Failed to list links from D1, falling back to KV:', e)
+    }
+  }
+
   const list = await KV.list({
     prefix: 'link:',
     limit: options.limit,
