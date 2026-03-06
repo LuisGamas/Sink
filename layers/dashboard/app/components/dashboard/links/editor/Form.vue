@@ -79,6 +79,7 @@ const form = useForm({
         },
       )
       emit('success', newLink)
+      refreshNuxtData(['sidebarMetadata', 'existingMetadata'])
       toast(props.isEdit ? t('links.update_success') : t('links.create_success'))
     }
     catch (error) {

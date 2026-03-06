@@ -67,6 +67,7 @@ export default eventHandler(async (event) => {
 
   // Duplicate URL detection
   let duplicatedLink: Link | null = null
+  const { cloudflare } = event.context
   const { DB } = cloudflare.env
   if (DB) {
     try {
