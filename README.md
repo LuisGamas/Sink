@@ -1,4 +1,7 @@
-# ⚡ Sink
+# ⚡ Sink (Gamas Edition)
+
+> [!NOTE]
+> This is a customized fork of the original [Sink](https://github.com/miantiao-me/Sink) project. It has been detached and modified to meet specific personal requirements and enhancements. While this version includes advanced features like D1 integration and UI optimizations, the original credits remain with the initial author. If you are looking for the general version, please visit the original repository. You are free to use this version if its enhancements suit your needs.
 
 **A Simple / Speedy / Secure Link Shortener with Analytics, 100% run on Cloudflare.**
 
@@ -59,6 +62,8 @@
 - **🖼️ OpenGraph Preview:** Custom social media previews with title, description, and image.
 - **📊 Real-time Analytics:** Live 3D globe visualization and real-time event logs.
 - **🚀 Advanced Management:** Instant search, sort, and filter powered by Cloudflare D1.
+- **🖥️ Custom View Modes:** Toggle between Grid, Minimal, and List views for better link management.
+- **✂️ Compact URL Display:** Visual option to simplify short link display (e.g., .../slug) while maintaining full functionality.
 - **🔲 QR Code:** Generate QR codes for your short links.
 - **📦 Import/Export:** Bulk migration via JSON/CSV files.
 - **🌍 Multi-language:** Full i18n support for the dashboard.

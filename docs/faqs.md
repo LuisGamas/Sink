@@ -94,3 +94,18 @@ Import and Export are designed to work within Cloudflare Workers' KV operation l
 - **Expired links**: Imported as-is to support migration scenarios.
 - **Duplicate slugs**: Skipped during import (existing links are preserved).
 - **Validation**: All links are validated against the schema before import starts.
+
+## 12. What are the benefits of D1 Integration?
+
+Unlike the original version that relies solely on KV scanning for searches and listings, this version uses Cloudflare D1 (SQL database) as a management layer. This enables:
+- **Instant Search**: Find any link by slug or URL in milliseconds.
+- **Advanced Filtering**: Filter by Folders and Tags directly from the sidebar.
+- **Scalability**: Better performance when managing thousands of links.
+
+## 13. How do View Modes work?
+
+You can customize your dashboard layout using the view toggle buttons in the header:
+- **Grid (Standard)**: The classic card view with full details.
+- **Minimal**: Compact cards without descriptions, ideal for scanning many links.
+- **List**: A horizontal layout optimized for desktop management.
+- **Compact URL**: An option to visually shorten your domain to `...` while keeping the full link in the clipboard when copied. Preference is saved locally in your browser.
