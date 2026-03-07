@@ -16,7 +16,7 @@ function query2sql(query: z.infer<typeof MetricsQuerySchema>, event: H3Event): s
   const filter = query2filter(query)
   const { dataset } = useRuntimeConfig(event)
 
-  const sql = select(`${logsMap[query.type]} as name, SUM(_sample_interval) as count`)
+  const sql = select(`${logsMap[query.type]} as name, SUM(_sample_interval) as count, ${weightedDistinct(logsMap.ip!)} as visitors`)
     .from(dataset)
     .where(filter)
     .groupBy('name')
