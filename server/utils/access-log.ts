@@ -34,6 +34,8 @@ export const blobsMap = {
   blob14: 'device',
   blob15: 'deviceType',
   blob16: 'COLO',
+  blob17: 'folder',
+  blob18: 'tags',
 } as const
 
 export const doublesMap = {
@@ -142,6 +144,8 @@ export function useAccessLog(event: H3Event) {
     device: uaInfo?.device?.model,
     deviceType: uaInfo?.device?.type,
     COLO: cf?.colo,
+    folder: link.folder || '',
+    tags: (link.tags || []).join(','),
 
     // For RealTime Globe
     latitude: Number(cf?.latitude || getHeader(event, 'cf-iplatitude') || 0),
