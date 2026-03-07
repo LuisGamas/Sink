@@ -12,7 +12,6 @@ import {
   Vehicles,
 } from 'ua-parser-js/extensions'
 import { parseURL } from 'ufo'
-import { getFlag } from '@/utils/flag'
 
 function toBlobNumber(blob: string) {
   return +blob.replace(/\D/g, '')
@@ -35,6 +34,8 @@ export const blobsMap = {
   blob14: 'device',
   blob15: 'deviceType',
   blob16: 'COLO',
+  blob17: 'folder',
+  blob18: 'tags',
 } as const
 
 export const doublesMap = {
@@ -131,10 +132,10 @@ export function useAccessLog(event: H3Event) {
     slug: link.slug,
     ua: userAgent,
     ip,
-    referer,
+    referer: referer || '',
     country: cf?.country,
-    region: `${getFlag(cf?.country)} ${[cf?.region, countryName].filter(Boolean).join(',')}`,
-    city: `${getFlag(cf?.country)} ${[cf?.city, countryName].filter(Boolean).join(',')}`,
+    region: cf?.region || countryName,
+    city: cf?.city || countryName,
     timezone: cf?.timezone,
     language,
     os: uaInfo?.os?.name,
@@ -143,6 +144,8 @@ export function useAccessLog(event: H3Event) {
     device: uaInfo?.device?.model,
     deviceType: uaInfo?.device?.type,
     COLO: cf?.colo,
+    folder: link.folder || '',
+    tags: (link.tags || []).join(','),
 
     // For RealTime Globe
     latitude: Number(cf?.latitude || getHeader(event, 'cf-iplatitude') || 0),

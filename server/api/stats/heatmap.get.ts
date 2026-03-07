@@ -15,8 +15,8 @@ function query2sql(query: z.infer<typeof HeatmapQuerySchema>, event: H3Event): s
   const filter = query2filter(query)
   const { dataset } = useRuntimeConfig(event)
   const timezone = getSafeTimezone(query.clientTimezone)
-  const tzTimestamp = `toDateTime(toUnixTimestamp(timestamp), '${timezone}')`
-  const sql = select(`toDayOfWeek(${tzTimestamp}) as weekday, toHour(${tzTimestamp}) as hour, SUM(_sample_interval) as visits, COUNT(DISTINCT ${logsMap.ip}) as visitors`).from(dataset).where(filter).groupBy('weekday', 'hour').orderBy('weekday', 'hour')
+  const tzTimestamp = toTZ('timestamp', timezone)
+  const sql = select(`toDayOfWeek(${tzTimestamp}) as weekday, toHour(${tzTimestamp}) as hour, SUM(_sample_interval) as visits, ${weightedDistinct(logsMap.ip!)} as visitors`).from(dataset).where(filter).groupBy('weekday', 'hour').orderBy('weekday', 'hour')
   appendTimeFilter(sql, query)
   return sql.toString()
 }
@@ -24,5 +24,8 @@ function query2sql(query: z.infer<typeof HeatmapQuerySchema>, event: H3Event): s
 export default eventHandler(async (event) => {
   const query = await getValidatedQuery(event, HeatmapQuerySchema.parse)
   const sql = query2sql(query, event)
-  return useWAE(event, sql)
+  const result = await useWAE(event, sql)
+  return {
+    data: result?.data || [],
+  }
 })

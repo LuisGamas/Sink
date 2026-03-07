@@ -106,7 +106,7 @@ We welcome your contributions and PRs.
 - [x] Apple Shortcuts - [Sink Shortcuts](https://s.search1api.com/sink001)
 - [x] iOS App - [Sink](https://apps.apple.com/app/id6745417598)
 - [x] Enhanced Link Management (with Cloudflare D1)
-- [ ] Analytics Enhancements (Support for merging filter conditions)
+- [/] Analytics Enhancements (Support for merging filter conditions)
 - [x] Dashboard Performance Optimization (Infinite loading)
 - [x] Units Test (Core API covered)
 
