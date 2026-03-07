@@ -3,6 +3,12 @@ import type { H3Event } from 'h3'
 export function useWAE(event: H3Event, query: string) {
   const { cfAccountId, cfApiToken } = useRuntimeConfig(event)
   console.info('useWAE', query)
+
+  if (!cfAccountId || cfAccountId === '123456') {
+    console.warn('Invalid Cloudflare Account ID. Skipping analytics query.')
+    return Promise.resolve({ data: [], meta: [] })
+  }
+
   return $fetch(`https://api.cloudflare.com/client/v4/accounts/${cfAccountId}/analytics_engine/sql`, {
     method: 'POST',
     headers: {
@@ -11,6 +17,9 @@ export function useWAE(event: H3Event, query: string) {
     body: query,
     retry: 1,
     retryDelay: 100, // ms
+  }).catch((err) => {
+    console.error('Cloudflare WAE Error:', err.data || err.message)
+    return { data: [], meta: [] }
   })
 }
 

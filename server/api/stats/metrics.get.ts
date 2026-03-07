@@ -31,5 +31,8 @@ function query2sql(query: z.infer<typeof MetricsQuerySchema>, event: H3Event): s
 export default eventHandler(async (event) => {
   const query = await getValidatedQuery(event, MetricsQuerySchema.parse)
   const sql = query2sql(query, event)
-  return useWAE(event, sql)
+  const result = await useWAE(event, sql)
+  return {
+    data: result?.data || [],
+  }
 })
