@@ -7,7 +7,7 @@ const { select } = SqlBricks
 function query2sql(query: Query, event: H3Event): string {
   const filter = query2filter(query)
   const { dataset } = useRuntimeConfig(event)
-  const sql = select(`*`).from(dataset).where(filter).orderBy('timestamp DESC')
+  const sql = select(`*`).from(`"${dataset}"`).where(filter).orderBy('timestamp DESC')
   appendTimeFilter(sql, query)
   return sql.toString()
 }
