@@ -81,24 +81,29 @@ async function getHeatmapData() {
 
   isLoaded.value = false
   const { startAt, endAt } = effectiveTimeRange.value
-  const result = await useAPI<{ data: HeatmapDataPoint[] }>(apiPath, {
-    query: {
-      id: id.value,
-      clientTimezone: getTimeZone(),
-      startAt,
-      endAt,
-      ...effectiveFilters.value,
-    },
-  })
-  const data = (result.data || []).map(item => ({
-    ...item,
-    visitors: +item.visitors,
-    visits: +item.visits,
-    weekday: +item.weekday,
-    hour: +item.hour,
-  }))
-  heatmapData.value = data
-  analysisStore.setToCache(apiPath, result.data)
+  try {
+    const result = await useAPI<{ data: HeatmapDataPoint[] }>(apiPath, {
+      query: {
+        id: id.value,
+        clientTimezone: getTimeZone(),
+        startAt,
+        endAt,
+        ...effectiveFilters.value,
+      },
+    })
+    const data = (result.data || []).map(item => ({
+      ...item,
+      visitors: +item.visitors,
+      visits: +item.visits,
+      weekday: +item.weekday,
+      hour: +item.hour,
+    }))
+    heatmapData.value = data
+    analysisStore.setToCache(apiPath, result.data)
+  }
+  catch (error) {
+    console.error('Failed to fetch heatmap data:', error)
+  }
   await nextTick()
   isLoaded.value = true
 }

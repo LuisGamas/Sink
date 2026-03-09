@@ -5,7 +5,12 @@ export function useWAE(event: H3Event, query: string) {
   console.info('useWAE', query)
 
   if (!cfAccountId || cfAccountId === '123456') {
-    console.warn('Invalid Cloudflare Account ID. Skipping analytics query.')
+    console.warn('Invalid Cloudflare Account ID. Please set NUXT_CF_ACCOUNT_ID environment variable.')
+    return Promise.resolve({ data: [], meta: [] })
+  }
+
+  if (!cfApiToken || cfApiToken === 'CloudflareAPIToken') {
+    console.warn('Invalid Cloudflare API Token. Please set NUXT_CF_API_TOKEN environment variable.')
     return Promise.resolve({ data: [], meta: [] })
   }
 
@@ -18,7 +23,7 @@ export function useWAE(event: H3Event, query: string) {
     retry: 1,
     retryDelay: 100, // ms
   }).catch((err) => {
-    console.error('Cloudflare WAE Error:', err.data || err.message)
+    console.error('Cloudflare WAE Error:', err.data || err.message || err)
     return { data: [], meta: [] }
   })
 }

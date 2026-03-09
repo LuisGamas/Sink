@@ -11,15 +11,20 @@ async function getEvents() {
   if (realtimeStore.timeRange.startAt === 0) {
     return
   }
-  const data = await useAPI<LogEvent[]>('/api/logs/events', {
-    query: {
-      startAt: realtimeStore.timeRange.startAt,
-      endAt: realtimeStore.timeRange.endAt,
-      ...realtimeStore.filters,
-    },
-  })
-  logs.value = data?.reverse() ?? []
-  logskey.value = Date.now()
+  try {
+    const data = await useAPI<LogEvent[]>('/api/logs/events', {
+      query: {
+        startAt: realtimeStore.timeRange.startAt,
+        endAt: realtimeStore.timeRange.endAt,
+        ...realtimeStore.filters,
+      },
+    })
+    logs.value = data?.reverse() ?? []
+    logskey.value = Date.now()
+  }
+  catch (error) {
+    console.error('Failed to fetch realtime logs:', error)
+  }
 }
 
 watch([() => realtimeStore.timeRange, () => realtimeStore.filters], getEvents, {

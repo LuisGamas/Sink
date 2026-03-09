@@ -24,17 +24,22 @@ async function getLinkCounters() {
   }
 
   counters.value = defaultData
-  const result = await useAPI<{ data: CounterData[] }>(apiPath, {
-    query: {
-      id: id.value,
-      startAt: analysisStore.dateRange.startAt,
-      endAt: analysisStore.dateRange.endAt,
-      ...analysisStore.filters,
-    },
-  })
-  const data = result.data?.[0] ?? defaultData
-  counters.value = data
-  analysisStore.setToCache(apiPath, result.data)
+  try {
+    const result = await useAPI<{ data: CounterData[] }>(apiPath, {
+      query: {
+        id: id.value,
+        startAt: analysisStore.dateRange.startAt,
+        endAt: analysisStore.dateRange.endAt,
+        ...analysisStore.filters,
+      },
+    })
+    const data = result.data?.[0] ?? defaultData
+    counters.value = data
+    analysisStore.setToCache(apiPath, result.data)
+  }
+  catch (error) {
+    console.error('Failed to fetch link counters:', error)
+  }
 }
 
 watchThrottled([() => analysisStore.dateRange, () => analysisStore.filters], getLinkCounters, {
