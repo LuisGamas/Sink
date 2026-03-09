@@ -1,16 +1,21 @@
 import type { H3Event } from 'h3'
 
 export function useWAE(event: H3Event, query: string) {
-  const { cfAccountId, cfApiToken } = useRuntimeConfig(event)
+  const config = useRuntimeConfig(event)
+  const env = event.context.cloudflare?.env || {}
+
+  const cfAccountId = config.cfAccountId || env.NUXT_CF_ACCOUNT_ID || env.CF_ACCOUNT_ID
+  const cfApiToken = config.cfApiToken || env.NUXT_CF_API_TOKEN || env.CF_API_TOKEN
+
   console.info('useWAE', query)
 
   if (!cfAccountId || cfAccountId === '123456') {
-    console.warn('Invalid Cloudflare Account ID. Please set NUXT_CF_ACCOUNT_ID environment variable.')
+    console.warn('Invalid Cloudflare Account ID. Please set NUXT_CF_ACCOUNT_ID in "Variables and Secrets" (not in Build).')
     return Promise.resolve({ data: [], meta: [] })
   }
 
   if (!cfApiToken || cfApiToken === 'CloudflareAPIToken') {
-    console.warn('Invalid Cloudflare API Token. Please set NUXT_CF_API_TOKEN environment variable.')
+    console.warn('Invalid Cloudflare API Token. Please set NUXT_CF_API_TOKEN in "Variables and Secrets" (not in Build).')
     return Promise.resolve({ data: [], meta: [] })
   }
 
