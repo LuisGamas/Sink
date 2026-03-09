@@ -95,23 +95,28 @@ async function getLinkViews() {
 
   views.value = []
   const { startAt, endAt } = effectiveTimeRange.value
-  const result = await useAPI<{ data: ViewDataPoint[] }>(apiPath, {
-    query: {
-      id: id.value,
-      unit: getUnit(startAt, endAt),
-      clientTimezone: getTimeZone(),
-      startAt,
-      endAt,
-      ...effectiveFilters.value,
-    },
-  })
-  const data = (result.data || []).map(item => ({
-    ...item,
-    visitors: +item.visitors,
-    visits: +item.visits,
-  }))
-  views.value = data
-  analysisStore.setToCache(apiPath, result.data)
+  try {
+    const result = await useAPI<{ data: ViewDataPoint[] }>(apiPath, {
+      query: {
+        id: id.value,
+        unit: getUnit(startAt, endAt),
+        clientTimezone: getTimeZone(),
+        startAt,
+        endAt,
+        ...effectiveFilters.value,
+      },
+    })
+    const data = (result.data || []).map(item => ({
+      ...item,
+      visitors: +item.visitors,
+      visits: +item.visits,
+    }))
+    views.value = data
+    analysisStore.setToCache(apiPath, result.data)
+  }
+  catch (error) {
+    console.error('Failed to fetch link views:', error)
+  }
 }
 
 watchThrottled(
@@ -141,49 +146,61 @@ type Data = ViewDataPoint
   >
     <ChartContainer :config="chartConfig" class="aspect-[4/1] w-full">
       <VisXYContainer :data="views" :margin="{ left: 0, right: 0 }">
-        <template v-if="isAreaMode">
-          <template v-for="cat in categories" :key="cat">
-            <VisArea
+        <template v-if="views.length">
+          <template v-if="isAreaMode">
+            <template v-for="cat in categories" :key="cat">
+              <VisArea
+                :x="(d: Data) => parseTimeString(d.time)"
+                :y="(d: Data) => d[cat as keyof Data] as number"
+                :color="chartConfig[cat]?.color ?? 'var(--chart-1)'"
+                :opacity="0.4"
+              />
+              <VisLine
+                :x="(d: Data) => parseTimeString(d.time)"
+                :y="(d: Data) => d[cat as keyof Data] as number"
+                :color="chartConfig[cat]?.color ?? 'var(--chart-1)'"
+                :line-width="2"
+              />
+            </template>
+          </template>
+
+          <template v-else>
+            <VisGroupedBar
               :x="(d: Data) => parseTimeString(d.time)"
-              :y="(d: Data) => d[cat as keyof Data] as number"
-              :color="chartConfig[cat]?.color ?? 'var(--chart-1)'"
-              :opacity="0.4"
-            />
-            <VisLine
-              :x="(d: Data) => parseTimeString(d.time)"
-              :y="(d: Data) => d[cat as keyof Data] as number"
-              :color="chartConfig[cat]?.color ?? 'var(--chart-1)'"
-              :line-width="2"
+              :y="categories.map(cat => (d: Data) => d[cat as keyof Data] as number)"
+              :color="categories.map(cat => chartConfig[cat]?.color ?? 'var(--chart-1)')"
+              :rounded-corners="4"
+              :group-width="getUnit(startAt ?? 0, endAt ?? 0) === 'minute' ? 8 : undefined"
             />
           </template>
-        </template>
 
-        <template v-else>
-          <VisGroupedBar
-            :x="(d: Data) => parseTimeString(d.time)"
-            :y="categories.map(cat => (d: Data) => d[cat as keyof Data] as number)"
+          <VisAxis
+            v-if="mode === 'full' && views.length"
+            type="y"
+            :tick-format="formatNumber"
+            :tick-line="false"
+            :domain-line="false"
+            :grid-line="true"
+            :num-ticks="3"
+          />
+
+          <!-- Tooltip -->
+          <ChartTooltip />
+          <ChartCrosshair
+            :template="componentToString(chartConfig, ChartTooltipContent, { labelKey: 'time' })"
             :color="categories.map(cat => chartConfig[cat]?.color ?? 'var(--chart-1)')"
-            :rounded-corners="4"
-            :group-width="getUnit(startAt ?? 0, endAt ?? 0) === 'minute' ? 8 : undefined"
           />
         </template>
-
-        <VisAxis
-          v-if="mode === 'full' && views.length"
-          type="y"
-          :tick-format="formatNumber"
-          :tick-line="false"
-          :domain-line="false"
-          :grid-line="true"
-          :num-ticks="3"
-        />
-
-        <!-- Tooltip -->
-        <ChartTooltip />
-        <ChartCrosshair
-          :template="componentToString(chartConfig, ChartTooltipContent, { labelKey: 'time' })"
-          :color="categories.map(cat => chartConfig[cat]?.color ?? 'var(--chart-1)')"
-        />
+        <template v-else>
+          <div
+            class="
+              flex h-full w-full items-center justify-center text-sm
+              text-muted-foreground
+            "
+          >
+            {{ $t('dashboard.no_data') }}
+          </div>
+        </template>
       </VisXYContainer>
     </ChartContainer>
   </Card>
