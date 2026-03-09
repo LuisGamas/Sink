@@ -12,7 +12,7 @@ function query2sql(query: Query, event: H3Event): string {
     `${weightedDistinct(logsMap.ip!)} as visitors`,
     `${weightedDistinct(logsMap.referer!)} as referers`,
   ].filter(Boolean).join(', ')
-  const sql = select(columns).from(dataset).where(filter)
+  const sql = select(columns).from(`"${dataset}"`).where(filter)
   if (query.id)
     sql.groupBy('index1')
   appendTimeFilter(sql, query)

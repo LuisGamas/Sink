@@ -16,7 +16,7 @@ function query2sql(query: z.infer<typeof HeatmapQuerySchema>, event: H3Event): s
   const { dataset } = useRuntimeConfig(event)
   const timezone = getSafeTimezone(query.clientTimezone)
   const tzTimestamp = toTZ('timestamp', timezone)
-  const sql = select(`toDayOfWeek(${tzTimestamp}) as weekday, toHour(${tzTimestamp}) as hour, SUM(_sample_interval) as visits, ${weightedDistinct(logsMap.ip!)} as visitors`).from(dataset).where(filter).groupBy('weekday', 'hour').orderBy('weekday', 'hour')
+  const sql = select(`toDayOfWeek(${tzTimestamp}) as weekday, toHour(${tzTimestamp}) as hour, SUM(_sample_interval) as visits, ${weightedDistinct(logsMap.ip!)} as visitors`).from(`"${dataset}"`).where(filter).groupBy('weekday', 'hour').orderBy('weekday', 'hour')
   appendTimeFilter(sql, query)
   return sql.toString()
 }
