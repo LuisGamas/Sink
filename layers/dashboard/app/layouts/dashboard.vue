@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useScroll } from '@vueuse/core'
 
-const { pageTitle } = useDashboardRoute()
+const { breadcrumbs } = useDashboardRoute()
 const route = useRoute()
 
 const scrollContainer = ref<HTMLElement | null>(null)
@@ -41,7 +41,7 @@ useSeoMeta({
                 data-[orientation=vertical]:h-4
               "
             />
-            <DashboardPageBreadcrumb :title="$t(pageTitle ?? 'dashboard.title')" />
+            <DashboardPageBreadcrumb :items="breadcrumbs" />
           </div>
 
           <div

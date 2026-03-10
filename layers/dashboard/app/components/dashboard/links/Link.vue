@@ -33,12 +33,20 @@ const host = requestUrl.host
 const origin = requestUrl.origin
 
 function getLinkHost(url: string): string | undefined {
-  const { host } = parseURL(url)
-  return host
+  try {
+    const { host } = parseURL(url)
+    return host
+  }
+  catch {
+    return undefined
+  }
 }
 
 const shortLink = computed(() => `${origin}/${props.link.slug}`)
-const linkIcon = computed(() => `https://unavatar.webp.se/${getLinkHost(props.link.url)}?fallback=https://sink.cool/icon.png`)
+const linkIcon = computed(() => {
+  const domain = getLinkHost(props.link.url)
+  return domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=128` : '/icon.png'
+})
 
 const { copy, copied } = useClipboard({ source: shortLink.value, copiedDuring: 400 })
 
@@ -98,9 +106,11 @@ const displayHost = computed(() => linksStore.shortUrlMode === 'compact' ? '...'
           flex items-center space-x-4
         "
       >
-        <Avatar class="h-8 w-8 shrink-0">
-          <AvatarImage :src="linkIcon" :alt="link.slug" />
-          <AvatarFallback><img src="/icon.png" class="h-8 w-8"></AvatarFallback>
+        <Avatar class="h-9 w-9 shrink-0 border shadow-sm">
+          <AvatarImage
+            :src="linkIcon" :alt="link.slug" class="object-contain p-1.5"
+          />
+          <AvatarFallback><img src="/icon.png" class="h-9 w-9 p-1.5"></AvatarFallback>
         </Avatar>
 
         <div class="flex min-w-0 flex-1 items-center space-x-3">
@@ -210,9 +220,20 @@ const displayHost = computed(() => linksStore.shortUrlMode === 'compact' ? '...'
         :to="`/dashboard/link?slug=${link.slug}`"
       >
         <div class="flex items-center justify-center space-x-3">
-          <Avatar :class="linksStore.viewMode === 'minimal' ? 'h-8 w-8' : ''">
-            <AvatarImage :src="linkIcon" :alt="link.slug" loading="lazy" />
-            <AvatarFallback><img src="/icon.png" :alt="link.slug" loading="lazy"></AvatarFallback>
+          <Avatar
+            class="border shadow-sm"
+            :class="linksStore.viewMode === 'minimal' ? 'h-9 w-9' : 'h-12 w-12'"
+          >
+            <AvatarImage
+              :src="linkIcon" :alt="link.slug" loading="lazy" class="
+                object-contain p-2
+              "
+            />
+            <AvatarFallback>
+              <img
+                src="/icon.png" :alt="link.slug" loading="lazy" class="p-2"
+              >
+            </AvatarFallback>
           </Avatar>
 
           <div class="flex-1 overflow-hidden">
