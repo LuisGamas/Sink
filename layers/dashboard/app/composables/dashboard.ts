@@ -55,9 +55,37 @@ export function useDashboardRoute() {
     return page ? DASHBOARD_ROUTES[page].titleKey : 'dashboard.title'
   })
 
+  const breadcrumbs = computed(() => {
+    const route = useRoute()
+    const page = currentPage.value
+    const items = [
+      {
+        title: 'dashboard.title',
+        url: '/dashboard/links',
+      },
+    ]
+
+    if (page) {
+      items.push({
+        title: DASHBOARD_ROUTES[page].titleKey,
+        url: '/dashboard/links', // Always point back to the main links list for these categories
+      })
+
+      // Add detail level if on single link page
+      if (page === 'link' && route.query.slug) {
+        items.push({
+          title: route.query.slug as string,
+          url: route.fullPath,
+        })
+      }
+    }
+
+    return items
+  })
+
   const isActive = (page: DashboardRouteName) => {
     return currentPage.value === page
   }
 
-  return { currentPage, pageTitle, isActive }
+  return { currentPage, pageTitle, breadcrumbs, isActive }
 }
