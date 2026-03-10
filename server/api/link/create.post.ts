@@ -78,13 +78,44 @@ export default eventHandler(async (event) => {
         duplicatedLink = mapRowToLink(results[0])
       }
     }
-    catch (e) {
-      console.error('Failed to detect duplicate URL:', e)
+    catch {
+      console.error('Failed to detect duplicate URL')
     }
   }
 
   await putLink(event, link)
+
+  // Fetch colors for the response
+  let folderColor = 'slate'
+  let tagsWithColors = []
+
+  if (DB) {
+    try {
+      if (link.folder) {
+        const fMeta = await DB.prepare('SELECT color FROM folders_metadata WHERE name = ?').bind(link.folder).first()
+        if (fMeta)
+          folderColor = fMeta.color
+      }
+      if (link.tags?.length) {
+        const tMeta = await DB.prepare(`SELECT name, color FROM tags_metadata WHERE name IN (${link.tags.map(() => '?').join(',')})`).bind(...link.tags).all()
+        const tMap = new Map(tMeta.results.map((r: any) => [r.name, r.color]))
+        tagsWithColors = link.tags.map(t => ({ name: t, color: tMap.get(t) || 'primary' }))
+      }
+    }
+    catch {
+      console.warn('Failed to fetch metadata colors for create response')
+    }
+  }
+
   setResponseStatus(event, 201)
   const shortLink = buildShortLink(event, link.slug)
-  return { link, shortLink, duplicatedLink }
+  return {
+    link: {
+      ...link,
+      folderColor,
+      tagsWithColors,
+    },
+    shortLink,
+    duplicatedLink,
+  }
 })

@@ -129,7 +129,8 @@ interface ListLinksResult {
   cursor?: string
 }
 
-export function mapRowToLink(row: any): Link {
+export function mapRowToLink(row: any, metadata?: { folders: Map<string, string>, tags: Map<string, string> }): Link & { folderColor?: string, tagsWithColors?: { name: string, color: string }[] } {
+  const tags = row.tags ? JSON.parse(row.tags) : []
   return {
     id: row.id,
     url: row.url,
@@ -148,8 +149,10 @@ export function mapRowToLink(row: any): Link {
     redirectWithQuery: Boolean(row.redirect_with_query),
     password: row.password,
     unsafe: Boolean(row.unsafe),
-    tags: row.tags ? JSON.parse(row.tags) : undefined,
+    tags,
     folder: row.folder,
+    folderColor: metadata?.folders.get(row.folder) || 'slate',
+    tagsWithColors: Array.isArray(tags) ? tags.map(t => ({ name: t, color: metadata?.tags.get(t) || 'primary' })) : [],
   }
 }
 
@@ -161,6 +164,16 @@ export async function listLinks(event: H3Event, options: ListLinksOptions): Prom
     try {
       const limit = options.limit
       const offset = options.cursor ? Number.parseInt(options.cursor) : 0
+
+      // Fetch metadata for colors
+      const [foldersMeta, tagsMeta] = await Promise.all([
+        DB.prepare('SELECT name, color FROM folders_metadata').all(),
+        DB.prepare('SELECT name, color FROM tags_metadata').all(),
+      ])
+      const meta = {
+        folders: new Map(foldersMeta.results.map((r: any) => [r.name, r.color])),
+        tags: new Map(tagsMeta.results.map((r: any) => [r.name, r.color])),
+      }
 
       let query = 'SELECT * FROM links'
       const params: any[] = []
@@ -185,7 +198,7 @@ export async function listLinks(event: H3Event, options: ListLinksOptions): Prom
 
       const { results } = await DB.prepare(query).bind(...params).all()
 
-      const links = results.map(mapRowToLink)
+      const links = results.map(row => mapRowToLink(row, meta))
 
       return {
         links,

@@ -1,21 +1,26 @@
 <script setup lang="ts">
 import type { CounterData, Link } from '@/types'
 import { useClipboard, useNow } from '@vueuse/core'
-import { CalendarPlus2, Clock, Copy, CopyCheck, Eraser, Folder, Hourglass, MousePointerClick, QrCode, ShieldAlert, SquareChevronDown, SquarePen, Tag, Users } from 'lucide-vue-next'
+import { CalendarPlus2, Check, Clock, Copy, CopyCheck, Eraser, Folder, Hourglass, MousePointerClick, QrCode, ShieldAlert, SquareChevronDown, SquarePen, Tag, Users } from 'lucide-vue-next'
 import { parseURL } from 'ufo'
 import { toast } from 'vue-sonner'
 
 import { cn } from '@/lib/utils'
-import { getFolderColor, getTagColor } from '@/utils/color'
+import { getLibraryColorClasses } from '@/utils/library'
 
 const props = defineProps<{
-  link: Link
+  link: Link & { folderColor?: string, tagsWithColors?: { name: string, color: string }[] }
   selected?: boolean
 }>()
 
 const emit = defineEmits<{
   toggleSelect: [slug: string]
 }>()
+
+// Helper to get color classes based on the stored color name
+function getColorClasses(colorName?: string) {
+  return getLibraryColorClasses(colorName)
+}
 
 const { t } = useI18n()
 const editPopoverOpen = ref(false)
@@ -125,7 +130,7 @@ const displayHost = computed(() => linksStore.shortUrlMode === 'compact' ? '...'
               hidden max-w-[100px] truncate rounded border border-transparent
               px-1.5 py-0 text-[10px]
               md:block
-            `, getFolderColor(link.folder))"
+            `, getColorClasses(link.folderColor))"
           >
             {{ link.folder }}
           </div>
@@ -331,16 +336,16 @@ const displayHost = computed(() => linksStore.shortUrlMode === 'compact' ? '...'
             <Badge
               v-if="link.folder" variant="outline" :class="cn(`
                 border-transparent px-1 py-0 text-[10px] font-normal
-              `, getFolderColor(link.folder))"
+              `, getColorClasses(link.folderColor))"
             >
               <Folder class="mr-1 h-3 w-3" /> {{ link.folder }}
             </Badge>
             <Badge
-              v-for="tag in link.tags" :key="tag" variant="secondary" :class="cn(`
+              v-for="tag in link.tagsWithColors" :key="tag.name" variant="secondary" :class="cn(`
                 border-transparent px-1 py-0 text-[10px] font-normal
-              `, getTagColor(tag))"
+              `, getColorClasses(tag.color))"
             >
-              <Tag class="mr-1 h-3 w-3" /> {{ tag }}
+              <Tag class="mr-1 h-3 w-3" /> {{ tag.name }}
             </Badge>
           </div>
 

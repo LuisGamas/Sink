@@ -118,7 +118,10 @@ const { isLoading } = useInfiniteScroll(
 function updateLinkList(link: Link, type: LinkUpdateType) {
   if (type === 'edit') {
     const index = links.value.findIndex(l => l.id === link.id)
-    links.value[index] = link
+    if (index > -1) {
+      // Replace the entire object to ensure all new properties (like colors) are reactive
+      links.value[index] = { ...link }
+    }
   }
   else if (type === 'delete') {
     const index = links.value.findIndex(l => l.id === link.id)
