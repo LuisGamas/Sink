@@ -11,6 +11,7 @@ const defaultData: CounterData = Object.freeze({
 })
 
 const counters = ref<CounterData>(defaultData)
+const loading = ref(true)
 
 const id = inject(LINK_ID_KEY, computed(() => undefined))
 const analysisStore = useDashboardAnalysisStore()
@@ -20,10 +21,11 @@ async function getLinkCounters() {
   const cached = analysisStore.getFromCache(apiPath)
   if (cached) {
     counters.value = cached?.[0] ?? defaultData
+    loading.value = false
     return
   }
 
-  counters.value = defaultData
+  loading.value = true
   try {
     const result = await useAPI<{ data: CounterData[] }>(apiPath, {
       query: {
@@ -39,6 +41,9 @@ async function getLinkCounters() {
   }
   catch (error) {
     console.error('Failed to fetch link counters:', error)
+  }
+  finally {
+    loading.value = false
   }
 }
 
@@ -62,7 +67,12 @@ onMounted(async () => {
       lg:gap-4
     "
   >
-    <Card class="gap-0">
+    <Card
+      v-motion
+      :initial="{ opacity: 0, y: 10 }"
+      :enter="{ opacity: 1, y: 0 }"
+      class="gap-0"
+    >
       <CardHeader
         class="flex flex-row items-center justify-between space-y-0 pb-2"
       >
@@ -74,10 +84,16 @@ onMounted(async () => {
         />
       </CardHeader>
       <CardContent>
-        <NumberFlow class="text-2xl font-bold tabular-nums" :class="{ 'opacity-60 blur-md': !counters.visits }" :value="counters.visits" />
+        <Skeleton v-if="loading" class="h-8 w-24" />
+        <NumberFlow v-else class="text-2xl font-bold tabular-nums" :value="counters.visits" />
       </CardContent>
     </Card>
-    <Card class="gap-0">
+    <Card
+      v-motion
+      :initial="{ opacity: 0, y: 10 }"
+      :enter="{ opacity: 1, y: 0, transition: { delay: 100 } }"
+      class="gap-0"
+    >
       <CardHeader
         class="flex flex-row items-center justify-between space-y-0 pb-2"
       >
@@ -87,10 +103,16 @@ onMounted(async () => {
         <Users aria-hidden="true" class="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
-        <NumberFlow class="text-2xl font-bold tabular-nums" :class="{ 'opacity-60 blur-md': !counters.visitors }" :value="counters.visitors" />
+        <Skeleton v-if="loading" class="h-8 w-24" />
+        <NumberFlow v-else class="text-2xl font-bold tabular-nums" :value="counters.visitors" />
       </CardContent>
     </Card>
-    <Card class="gap-0">
+    <Card
+      v-motion
+      :initial="{ opacity: 0, y: 10 }"
+      :enter="{ opacity: 1, y: 0, transition: { delay: 200 } }"
+      class="gap-0"
+    >
       <CardHeader
         class="flex flex-row items-center justify-between space-y-0 pb-2"
       >
@@ -100,7 +122,8 @@ onMounted(async () => {
         <Flame aria-hidden="true" class="h-4 w-4 text-muted-foreground" />
       </CardHeader>
       <CardContent>
-        <NumberFlow class="text-2xl font-bold tabular-nums" :class="{ 'opacity-60 blur-md': !counters.referers }" :value="counters.referers" />
+        <Skeleton v-if="loading" class="h-8 w-24" />
+        <NumberFlow v-else class="text-2xl font-bold tabular-nums" :value="counters.referers" />
       </CardContent>
     </Card>
   </div>

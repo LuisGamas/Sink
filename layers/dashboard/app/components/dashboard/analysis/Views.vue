@@ -22,6 +22,7 @@ const props = withDefaults(defineProps<{
 const { t } = useI18n()
 
 const views = shallowRef<ViewDataPoint[]>([])
+const loading = ref(true)
 
 const isAreaMode = computed(() => props.chartType === 'area' && views.value.length > 1)
 
@@ -90,10 +91,11 @@ async function getLinkViews() {
       visitors: +item.visitors,
       visits: +item.visits,
     }))
+    loading.value = false
     return
   }
 
-  views.value = []
+  loading.value = true
   const { startAt, endAt } = effectiveTimeRange.value
   try {
     const result = await useAPI<{ data: ViewDataPoint[] }>(apiPath, {
@@ -117,6 +119,9 @@ async function getLinkViews() {
   catch (error) {
     console.error('Failed to fetch link views:', error)
   }
+  finally {
+    loading.value = false
+  }
 }
 
 watchThrottled(
@@ -139,12 +144,22 @@ type Data = ViewDataPoint
 
 <template>
   <Card
+    v-motion
+    :initial="{ opacity: 0, y: 20 }"
+    :enter="{ opacity: 1, y: 0, transition: { delay: 300 } }"
     class="
       p-4
       md:p-10
     "
   >
-    <ChartContainer :config="chartConfig" class="aspect-[4/1] w-full">
+    <div
+      v-if="loading" class="
+        flex aspect-[4/1] w-full items-center justify-center
+      "
+    >
+      <Skeleton class="h-full w-full" />
+    </div>
+    <ChartContainer v-else :config="chartConfig" class="aspect-[4/1] w-full">
       <VisXYContainer :data="views" :margin="{ left: 0, right: 0 }">
         <template v-if="views.length">
           <template v-if="isAreaMode">

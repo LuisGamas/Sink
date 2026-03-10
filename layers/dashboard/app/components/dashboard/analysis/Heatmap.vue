@@ -104,8 +104,9 @@ async function getHeatmapData() {
   catch (error) {
     console.error('Failed to fetch heatmap data:', error)
   }
-  await nextTick()
-  isLoaded.value = true
+  finally {
+    isLoaded.value = true
+  }
 }
 
 watchThrottled(
@@ -126,18 +127,28 @@ onMounted(() => {
 
 <template>
   <Card
+    v-motion
+    :initial="{ opacity: 0, y: 20 }"
+    :enter="{ opacity: 1, y: 0, transition: { delay: 400 } }"
     class="
       p-4
       md:p-10
     "
   >
+    <div
+      v-if="!isLoaded" class="
+        flex aspect-[4/1] w-full items-center justify-center
+      "
+    >
+      <Skeleton class="h-full w-full" />
+    </div>
     <!-- Heatmap container with same aspect ratio as Views -->
     <div
+      v-else
       class="
         aspect-[4/1] w-full overflow-x-auto transition-opacity duration-500
         ease-out
       "
-      :class="isLoaded ? 'opacity-100' : 'opacity-0'"
     >
       <div class="flex h-full min-w-[600px] flex-col">
         <!-- Hours header -->
