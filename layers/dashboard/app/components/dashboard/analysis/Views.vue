@@ -206,7 +206,7 @@ type Data = ViewDataPoint
             :color="categories.map(cat => chartConfig[cat]?.color ?? 'var(--chart-1)')"
           />
         </template>
-        <template v-else>
+        <template v-else-if="!loading">
           <div
             class="
               flex h-full w-full items-center justify-center text-sm

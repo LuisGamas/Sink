@@ -57,8 +57,11 @@ const displayHost = computed(() => linksStore.shortUrlMode === 'compact' ? '...'
 
 <template>
   <Card
+    v-motion
+    :initial="{ opacity: 0, scale: 0.98 }"
+    :enter="{ opacity: 1, scale: 1, transition: { duration: 400 } }"
     :class="cn(
-      'group/card relative transition-colors duration-200',
+      'group/card relative transition-all duration-300 ease-out',
       selected && 'border-primary bg-primary/5 ring-1 ring-primary/20',
       linksStore.viewMode === 'list' ? 'h-auto py-1' : 'h-full',
     )"
@@ -151,18 +154,18 @@ const displayHost = computed(() => linksStore.shortUrlMode === 'compact' ? '...'
           <span>{{ shortDate(link.createdAt) }}</span>
         </div>
 
-        <div class="flex shrink-0 items-center space-x-1">
-          <Button variant="ghost" size="icon" class="h-8 w-8" @click.prevent="copyLink">
-            <CopyCheck v-if="copied" class="h-4 w-4" />
-            <Copy v-else class="h-4 w-4" />
+        <div class="flex shrink-0 items-center space-x-2">
+          <Button variant="ghost" size="icon" class="h-9 w-9" @click.prevent="copyLink">
+            <CopyCheck v-if="copied" class="h-5 w-5" />
+            <Copy v-else class="h-5 w-5" />
           </Button>
           <Popover v-model:open="editPopoverOpen">
             <PopoverTrigger as-child>
               <Button
-                variant="ghost" size="icon" class="h-8 w-8"
+                variant="ghost" size="icon" class="h-9 w-9"
               >
                 <SquareChevronDown
-                  class="h-4 w-4"
+                  class="h-5 w-5"
                 />
               </Button>
             </PopoverTrigger>
@@ -242,11 +245,11 @@ const displayHost = computed(() => linksStore.shortUrlMode === 'compact' ? '...'
               </div>
 
               <Button
-                variant="ghost" size="icon" class="ml-auto h-6 w-6 p-0"
+                variant="ghost" size="icon" class="ml-auto h-8 w-8 p-0"
                 @click.prevent="copyLink"
               >
-                <CopyCheck v-if="copied" class="h-3.5 w-3.5" />
-                <Copy v-else class="h-3.5 w-3.5" />
+                <CopyCheck v-if="copied" class="h-4.5 w-4.5" />
+                <Copy v-else class="h-4.5 w-4.5" />
               </Button>
             </div>
 
@@ -259,12 +262,17 @@ const displayHost = computed(() => linksStore.shortUrlMode === 'compact' ? '...'
             </p>
           </div>
 
-          <div class="flex shrink-0 items-center space-x-1">
+          <div class="flex shrink-0 items-center space-x-2">
             <Popover>
-              <PopoverTrigger aria-label="Show QR code">
+              <PopoverTrigger
+                aria-label="Show QR code" class="
+                  rounded-md p-1.5 transition-colors
+                  hover:bg-accent
+                "
+              >
                 <QrCode
                   class="
-                    h-4 w-4 opacity-70 transition-opacity
+                    h-5 w-5 opacity-70 transition-opacity
                     hover:opacity-100
                   " @click.prevent
                 />
@@ -273,10 +281,15 @@ const displayHost = computed(() => linksStore.shortUrlMode === 'compact' ? '...'
             </Popover>
 
             <Popover v-model:open="editPopoverOpen">
-              <PopoverTrigger aria-label="More actions">
+              <PopoverTrigger
+                aria-label="More actions" class="
+                  rounded-md p-1.5 transition-colors
+                  hover:bg-accent
+                "
+              >
                 <SquareChevronDown
                   class="
-                    h-4 w-4 opacity-70 transition-opacity
+                    h-5 w-5 opacity-70 transition-opacity
                     hover:opacity-100
                   " @click.prevent
                 />
