@@ -54,7 +54,10 @@
     "links": "Links",
     "analysis": "Analysis",
     "realtime": "Realtime",
-    "migrate": "Import/Export"
+    "migrate": "Import/Export",
+    "library": "Library",
+    "folders": "Folders",
+    "tags": "Tags"
   },
   "sidebar": {
     "subtitle": "Link Shortener",
@@ -164,6 +167,27 @@
     "loading": "Loading",
     "no_data": "No Data",
     "none": "(None)",
+    "library": {
+      "folders_title": "Folders",
+      "folders_subtitle": "Manage your link folders and customize their appearance.",
+      "tags_title": "Tags",
+      "tags_subtitle": "Manage your link tags and customize their appearance.",
+      "create_folder": "Create Folder",
+      "create_tag": "Create Tag",
+      "edit_folder": "Edit Folder",
+      "edit_tag": "Edit Tag",
+      "update_success": "{type} updated successfully",
+      "update_failed": "Failed to update {type}",
+      "delete_success": "{type} deleted and unbinded successfully",
+      "delete_failed": "Failed to delete {type}",
+      "delete_confirm": "Are you sure you want to delete the {type} \"{name}\"? This will unbind it from all associated links.",
+      "rename_notice": "Enable renaming (This will update all associated links)",
+      "rename_tip": "Tip: Changing the name will automatically update all links in this {type}.",
+      "rename_confirm": "You are renaming \"{old}\" to \"{new}\". This will update ALL associated links. Are you sure?",
+      "viewing": "Viewing {current} of {total} {type}",
+      "no_results": "No results found.",
+      "select_items": "Select items..."
+    },
     "filter_placeholder": "Filter links...",
     "date_picker": {
       "today": "Today",

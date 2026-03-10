@@ -86,7 +86,39 @@ export default eventHandler(async (event) => {
     }
   }
   await putLink(event, newLink)
+
+  // Fetch colors for the response
+  const { cloudflare } = event.context
+  const { DB } = cloudflare.env
+  let folderColor = 'slate'
+  let tagsWithColors = []
+
+  if (DB) {
+    try {
+      if (newLink.folder) {
+        const fMeta = await DB.prepare('SELECT color FROM folders_metadata WHERE name = ?').bind(newLink.folder).first()
+        if (fMeta)
+          folderColor = fMeta.color
+      }
+      if (newLink.tags?.length) {
+        const tMeta = await DB.prepare(`SELECT name, color FROM tags_metadata WHERE name IN (${newLink.tags.map(() => '?').join(',')})`).bind(...newLink.tags).all()
+        const tMap = new Map(tMeta.results.map((r: any) => [r.name, r.color]))
+        tagsWithColors = newLink.tags.map(t => ({ name: t, color: tMap.get(t) || 'primary' }))
+      }
+    }
+    catch {
+      console.warn('Failed to fetch metadata colors for edit response')
+    }
+  }
+
   setResponseStatus(event, 201)
   const shortLink = buildShortLink(event, newLink.slug)
-  return { link: newLink, shortLink }
+  return {
+    link: {
+      ...newLink,
+      folderColor,
+      tagsWithColors,
+    },
+    shortLink,
+  }
 })

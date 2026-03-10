@@ -5,6 +5,8 @@ import { useForm } from '@tanstack/vue-form'
 import { Shuffle, Sparkles } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { z } from 'zod'
+import { cn } from '@/lib/utils'
+import { getLibraryColorClasses } from '@/utils/library'
 
 const props = defineProps<{
   link: Partial<Link>
@@ -155,7 +157,7 @@ const currentSlug = form.useStore(state => state.values.slug || '')
 
 const { previewMode } = useRuntimeConfig().public
 
-const { data: existingMetadata } = await useAsyncData('existingMetadata', () => useAPI<{ folders: string[], tags: string[] }>('/api/link/metadata'), {
+const { data: existingMetadata } = await useAsyncData('existingMetadata', () => useAPI<{ folders: any[], tags: any[] }>('/api/metadata'), {
   default: () => ({ folders: [], tags: [] }),
 })
 </script>
@@ -291,20 +293,22 @@ const { data: existingMetadata } = await useAsyncData('existingMetadata', () => 
             <FieldLabel :for="field.name">
               {{ $t('links.form.folder') }}
             </FieldLabel>
-            <div class="relative">
-              <Input
-                :id="field.name"
-                :name="field.name"
-                :model-value="field.state.value"
-                :placeholder="$t('links.form.folder_placeholder')"
-                list="existing-folders"
-                @blur="field.handleBlur"
-                @input="field.handleChange(($event.target as HTMLInputElement).value)"
-              />
-              <datalist id="existing-folders">
-                <option v-for="f in existingMetadata.folders" :key="f" :value="f" />
-              </datalist>
-            </div>
+            <Select :model-value="field.state.value || 'none'" @update:model-value="v => field.handleChange(v === 'none' ? '' : v)">
+              <SelectTrigger class="w-full">
+                <SelectValue :placeholder="$t('links.form.folder_placeholder')" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none" class="text-muted-foreground italic">
+                  {{ $t('dashboard.none') }}
+                </SelectItem>
+                <SelectItem v-for="f in existingMetadata.folders" :key="f.name" :value="f.name">
+                  <div class="flex items-center gap-2">
+                    <div :class="cn('size-2 rounded-full border', getLibraryColorClasses(f.color))" />
+                    {{ f.name }}
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </Field>
         </form.Field>
 
@@ -316,18 +320,12 @@ const { data: existingMetadata } = await useAsyncData('existingMetadata', () => 
             <FieldLabel :for="field.name">
               {{ $t('links.form.tags') }}
             </FieldLabel>
-            <Input
-              :id="field.name"
-              :name="field.name"
-              :model-value="field.state.value?.join(', ')"
+            <DashboardLibraryMultiSelect
+              :model-value="field.state.value || []"
+              :options="existingMetadata.tags"
               :placeholder="$t('links.form.tags_placeholder')"
-              list="existing-tags"
-              @blur="field.handleBlur"
-              @input="e => field.handleChange((e.target as HTMLInputElement).value.split(',').map(s => s.trim()).filter(Boolean))"
+              @update:model-value="field.handleChange"
             />
-            <datalist id="existing-tags">
-              <option v-for="tagName in existingMetadata.tags" :key="tagName" :value="tagName" />
-            </datalist>
           </Field>
         </form.Field>
       </div>

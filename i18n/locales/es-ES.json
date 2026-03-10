@@ -54,7 +54,10 @@
     "links": "Enlaces",
     "analysis": "Análisis",
     "realtime": "Tiempo real",
-    "migrate": "Importar/Exportar"
+    "migrate": "Importar/Exportar",
+    "library": "Librería",
+    "folders": "Carpetas",
+    "tags": "Etiquetas"
   },
   "sidebar": {
     "subtitle": "Acortador de enlaces",
@@ -164,6 +167,27 @@
     "loading": "Cargando",
     "no_data": "Sin datos",
     "none": "(Ninguno)",
+    "library": {
+      "folders_title": "Carpetas",
+      "folders_subtitle": "Gestiona tus carpetas de enlaces y personaliza su apariencia.",
+      "tags_title": "Etiquetas",
+      "tags_subtitle": "Gestiona tus etiquetas de enlaces y personaliza su apariencia.",
+      "create_folder": "Crear Carpeta",
+      "create_tag": "Crear Etiqueta",
+      "edit_folder": "Editar Carpeta",
+      "edit_tag": "Editar Etiqueta",
+      "update_success": "{type} actualizada con éxito",
+      "update_failed": "Error al actualizar {type}",
+      "delete_success": "{type} eliminada y desvinculada con éxito",
+      "delete_failed": "Error al eliminar {type}",
+      "delete_confirm": "¿Estás seguro de que quieres eliminar la {type} \"{name}\"? Esto la desvinculará de todos los enlaces asociados.",
+      "rename_notice": "Habilitar renombrado (Esto actualizará todos los enlaces asociados)",
+      "rename_tip": "Consejo: Cambiar el nombre actualizará automáticamente todos los enlaces en esta {type}.",
+      "rename_confirm": "Estás renombrando \"{old}\" a \"{new}\". Esto actualizará TODOS los enlaces asociados. ¿Estás seguro?",
+      "viewing": "Viendo {current} de {total} {type}",
+      "no_results": "No se han encontrado resultados.",
+      "select_items": "Seleccionar elementos..."
+    },
     "filter_placeholder": "Filtrar enlaces...",
     "date_picker": {
       "today": "Hoy",
@@ -257,7 +281,11 @@
       "image_upload_failed": "Error al subir la imagen",
       "image_upload_hint": "Haz clic o arrastra para subir la imagen",
       "image_ratio_hint": "Recomendado: 1200×630",
-      "slug_required": "Por favor, introduce un slug primero"
+      "slug_required": "Por favor, introduce un slug primero",
+      "folder": "Carpeta",
+      "folder_placeholder": "ej. Marketing",
+      "tags": "Etiquetas",
+      "tags_placeholder": "ej. promo, social, 2026"
     },
     "sort": {
       "newest": "Nuevos primero",
@@ -265,6 +293,13 @@
       "az": "Slug A-Z",
       "za": "Slug Z-A",
       "tip": "Nota: Solo para enlaces cargados"
+    },
+    "view": {
+      "grid": "Vista cuadrícula",
+      "minimal": "Vista mínima",
+      "list": "Vista lista",
+      "compact_url": "URL compacta",
+      "full_url": "URL completa"
     },
     "update_failed": "Error al actualizar el enlace",
     "create_failed": "Error al crear el enlace",
