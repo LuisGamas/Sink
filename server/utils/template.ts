@@ -1,26 +1,75 @@
 import type { Link } from '#shared/schemas/link'
 import { escape } from 'es-toolkit/string'
+import { ofetch } from 'ofetch'
 import { parseURL } from 'ufo'
 
-function buildMetaTags(link: Link, baseUrl: string) {
+export interface OGMetadata {
+  title?: string
+  description?: string
+  image?: string
+}
+
+/**
+ * Fetch OpenGraph metadata from a target URL
+ */
+export async function fetchOGMetadata(url: string): Promise<OGMetadata> {
+  try {
+    const html = await ofetch(url, {
+      timeout: 3000,
+      headers: {
+        'User-Agent': 'SinkBot/1.0 (OpenGraph Proxy)',
+      },
+    })
+
+    if (typeof html !== 'string')
+      return {}
+
+    const getMeta = (name: string) => {
+      // Look for name or property with and without og: prefix
+      const regex = new RegExp(`<meta[^>]+(?:name|property)=["'](?:og:)?${name}["'][^>]+content=["']([^"']+)["']`, 'i')
+      const match = html.match(regex)
+      return match ? match[1] : undefined
+    }
+
+    const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i)
+    const title = titleMatch ? titleMatch[1] : undefined
+
+    return {
+      title: getMeta('title') || title,
+      description: getMeta('description'),
+      image: getMeta('image'),
+    }
+  }
+  catch (e) {
+    console.warn(`[OG] Failed to fetch metadata for ${url}:`, e)
+    return {}
+  }
+}
+
+function buildMetaTags(link: Link, baseUrl: string, inherited?: OGMetadata) {
   const { host: hostname } = parseURL(link.url)
-  const title = link.title || hostname || 'Link'
-  const hasImage = !!link.image
-  const imageUrl = hasImage && link.image!.startsWith('/')
-    ? `${baseUrl}${link.image}`
-    : link.image
+
+  // Priority: Link Custom Data > Inherited from target URL > Default
+  const title = link.title || inherited?.title || hostname || 'Link'
+  const description = link.description || inherited?.description || ''
+  const image = link.image || inherited?.image || ''
+
+  const hasImage = !!image
+  const imageUrl = hasImage && image.startsWith('/')
+    ? `${baseUrl}${image}`
+    : image
   const twitterCard = hasImage ? 'summary_large_image' : 'summary'
 
   const tags = [
-    link.description ? `<meta name="description" content="${escape(link.description)}">` : '',
+    description ? `<meta name="description" content="${escape(description)}">` : '',
     `<meta property="og:type" content="website">`,
     `<meta property="og:url" content="${escape(baseUrl)}/${escape(link.slug)}">`,
     `<meta property="og:title" content="${escape(title)}">`,
-    link.description ? `<meta property="og:description" content="${escape(link.description)}">` : '',
+    description ? `<meta property="og:description" content="${escape(description)}">` : '',
     hasImage ? `<meta property="og:image" content="${escape(imageUrl!)}">` : '',
     `<meta name="twitter:card" content="${twitterCard}">`,
     `<meta name="twitter:title" content="${escape(title)}">`,
-    link.description ? `<meta name="twitter:description" content="${escape(link.description)}">` : '',
+    description ? `<meta name="twitter:description" content="${escape(description)}">` : '',
     hasImage ? `<meta name="twitter:image" content="${escape(imageUrl!)}">` : '',
   ].filter(Boolean).join('\n    ')
 
@@ -138,8 +187,8 @@ export function generateUnsafeWarningHtml(slug: string, targetUrl: string, optio
 </html>`
 }
 
-export function generateOgHtml(link: Link, targetUrl: string, baseUrl: string): string {
-  const { title, tags } = buildMetaTags(link, baseUrl)
+export function generateOgHtml(link: Link, targetUrl: string, baseUrl: string, inherited?: OGMetadata): string {
+  const { title, tags } = buildMetaTags(link, baseUrl, inherited)
 
   return `<!DOCTYPE html>
 <html>

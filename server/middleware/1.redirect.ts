@@ -152,9 +152,16 @@ export default eventHandler(async (event) => {
         return sendRedirect(event, deviceRedirectUrl, +redirectStatusCode)
       }
 
-      if (isSocialBot(userAgent) && hasOgConfig(link)) {
+      if (isSocialBot(userAgent)) {
         const baseUrl = `${getRequestProtocol(event)}://${getRequestHost(event)}`
-        const html = generateOgHtml(link, buildTarget(link.url), baseUrl)
+        let inherited: OGMetadata | undefined
+
+        // If no custom OG config, try to fetch from target URL
+        if (!hasOgConfig(link)) {
+          inherited = await fetchOGMetadata(link.url)
+        }
+
+        const html = generateOgHtml(link, buildTarget(link.url), baseUrl, inherited)
         setHeader(event, 'Content-Type', 'text/html; charset=utf-8')
         return html
       }
