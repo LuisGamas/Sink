@@ -18,6 +18,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+const metadataStore = useMetadataStore()
 
 const urlValidator = LinkSchema.shape.url
 const slugValidator = LinkSchema.shape.slug
@@ -81,7 +82,7 @@ const form = useForm({
         },
       )
       emit('success', newLink)
-      refreshNuxtData(['sidebarMetadata', 'existingMetadata'])
+      metadataStore.refresh()
       toast(props.isEdit ? t('links.update_success') : t('links.create_success'))
     }
     catch (error) {
@@ -157,9 +158,9 @@ const currentSlug = form.useStore(state => state.values.slug || '')
 
 const { previewMode } = useRuntimeConfig().public
 
-const { data: existingMetadata } = await useAsyncData('existingMetadata', () => useAPI<{ folders: any[], tags: any[] }>('/api/metadata'), {
-  default: () => ({ folders: [], tags: [] }),
-})
+if (!metadataStore.folders.length && !metadataStore.tags.length) {
+  metadataStore.refresh()
+}
 </script>
 
 <template>
@@ -301,7 +302,7 @@ const { data: existingMetadata } = await useAsyncData('existingMetadata', () => 
                 <SelectItem value="none" class="text-muted-foreground italic">
                   {{ $t('dashboard.none') }}
                 </SelectItem>
-                <SelectItem v-for="f in existingMetadata.folders" :key="f.name" :value="f.name">
+                <SelectItem v-for="f in metadataStore.folders" :key="f.name" :value="f.name">
                   <div class="flex items-center gap-2">
                     <div :class="cn('size-2 rounded-full border', getLibraryColorClasses(f.color))" />
                     {{ f.name }}
@@ -322,7 +323,7 @@ const { data: existingMetadata } = await useAsyncData('existingMetadata', () => 
             </FieldLabel>
             <DashboardLibraryMultiSelect
               :model-value="field.state.value || []"
-              :options="existingMetadata.tags"
+              :options="metadataStore.tags"
               :placeholder="$t('links.form.tags_placeholder')"
               @update:model-value="field.handleChange"
             />

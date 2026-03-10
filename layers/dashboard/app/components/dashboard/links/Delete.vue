@@ -8,6 +8,7 @@ const props = defineProps<{
 
 const { t } = useI18n()
 const linksStore = useDashboardLinksStore()
+const metadataStore = useMetadataStore()
 
 async function deleteLink() {
   try {
@@ -18,6 +19,7 @@ async function deleteLink() {
       },
     })
     linksStore.notifyLinkUpdate(props.link, 'delete')
+    metadataStore.refresh()
     toast(t('links.delete_success'))
   }
   catch (error) {

@@ -6,7 +6,8 @@ definePageMeta({
   layout: 'dashboard',
 })
 
-const { data: metadata, refresh } = await useAsyncData('metadata', () => useAPI<{ folders: any[], tags: any[] }>('/api/metadata'))
+const { t } = useI18n()
+const metadataStore = useMetadataStore()
 
 const showEditor = ref(false)
 const editingItem = ref<any>(null)
@@ -32,9 +33,10 @@ async function handleSave(data: { name: string, color: string, oldName?: string 
     })
     toast.success(t('dashboard.library.update_success', { type: t('nav.folders').slice(0, -1) }))
     showEditor.value = false
-    refresh()
+    await metadataStore.refresh()
   }
-  catch {
+  catch (error) {
+    console.error(error)
     toast.error(t('dashboard.library.update_failed', { type: t('nav.folders').slice(0, -1) }))
   }
 }
@@ -53,9 +55,10 @@ async function handleDelete(name: string) {
       },
     })
     toast.success(t('dashboard.library.delete_success', { type: t('nav.folders').slice(0, -1) }))
-    refresh()
+    await metadataStore.refresh()
   }
-  catch {
+  catch (error) {
+    console.error(error)
     toast.error(t('dashboard.library.delete_failed', { type: t('nav.folders').slice(0, -1) }))
   }
 }
@@ -80,7 +83,7 @@ async function handleDelete(name: string) {
 
     <DashboardLibraryTable
       :title="$t('dashboard.library.folders_title')"
-      :items="metadata?.folders || []"
+      :items="metadataStore.folders"
       type="folder"
       @edit="openEdit"
       @delete="handleDelete"

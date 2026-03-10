@@ -33,12 +33,20 @@ const host = requestUrl.host
 const origin = requestUrl.origin
 
 function getLinkHost(url: string): string | undefined {
-  const { host } = parseURL(url)
-  return host
+  try {
+    const { host } = parseURL(url)
+    return host
+  }
+  catch {
+    return undefined
+  }
 }
 
 const shortLink = computed(() => `${origin}/${props.link.slug}`)
-const linkIcon = computed(() => `https://unavatar.webp.se/${getLinkHost(props.link.url)}?fallback=https://sink.cool/icon.png`)
+const linkIcon = computed(() => {
+  const domain = getLinkHost(props.link.url)
+  return domain ? `https://www.google.com/s2/favicons?domain=${domain}&sz=128` : '/icon.png'
+})
 
 const { copy, copied } = useClipboard({ source: shortLink.value, copiedDuring: 400 })
 
@@ -57,8 +65,11 @@ const displayHost = computed(() => linksStore.shortUrlMode === 'compact' ? '...'
 
 <template>
   <Card
+    v-motion
+    :initial="{ opacity: 0, scale: 0.98 }"
+    :enter="{ opacity: 1, scale: 1, transition: { duration: 400 } }"
     :class="cn(
-      'group/card relative transition-colors duration-200',
+      'group/card relative transition-all duration-300 ease-out',
       selected && 'border-primary bg-primary/5 ring-1 ring-primary/20',
       linksStore.viewMode === 'list' ? 'h-auto py-1' : 'h-full',
     )"
@@ -95,9 +106,11 @@ const displayHost = computed(() => linksStore.shortUrlMode === 'compact' ? '...'
           flex items-center space-x-4
         "
       >
-        <Avatar class="h-8 w-8 shrink-0">
-          <AvatarImage :src="linkIcon" :alt="link.slug" />
-          <AvatarFallback><img src="/icon.png" class="h-8 w-8"></AvatarFallback>
+        <Avatar class="h-9 w-9 shrink-0 border shadow-sm">
+          <AvatarImage
+            :src="linkIcon" :alt="link.slug" class="object-contain p-1.5"
+          />
+          <AvatarFallback><img src="/icon.png" class="h-9 w-9 p-1.5"></AvatarFallback>
         </Avatar>
 
         <div class="flex min-w-0 flex-1 items-center space-x-3">
@@ -151,18 +164,18 @@ const displayHost = computed(() => linksStore.shortUrlMode === 'compact' ? '...'
           <span>{{ shortDate(link.createdAt) }}</span>
         </div>
 
-        <div class="flex shrink-0 items-center space-x-1">
-          <Button variant="ghost" size="icon" class="h-8 w-8" @click.prevent="copyLink">
-            <CopyCheck v-if="copied" class="h-4 w-4" />
-            <Copy v-else class="h-4 w-4" />
+        <div class="flex shrink-0 items-center space-x-2">
+          <Button variant="ghost" size="icon" class="h-9 w-9" @click.prevent="copyLink">
+            <CopyCheck v-if="copied" class="h-5 w-5" />
+            <Copy v-else class="h-5 w-5" />
           </Button>
           <Popover v-model:open="editPopoverOpen">
             <PopoverTrigger as-child>
               <Button
-                variant="ghost" size="icon" class="h-8 w-8"
+                variant="ghost" size="icon" class="h-9 w-9"
               >
                 <SquareChevronDown
-                  class="h-4 w-4"
+                  class="h-5 w-5"
                 />
               </Button>
             </PopoverTrigger>
@@ -207,9 +220,20 @@ const displayHost = computed(() => linksStore.shortUrlMode === 'compact' ? '...'
         :to="`/dashboard/link?slug=${link.slug}`"
       >
         <div class="flex items-center justify-center space-x-3">
-          <Avatar :class="linksStore.viewMode === 'minimal' ? 'h-8 w-8' : ''">
-            <AvatarImage :src="linkIcon" :alt="link.slug" loading="lazy" />
-            <AvatarFallback><img src="/icon.png" :alt="link.slug" loading="lazy"></AvatarFallback>
+          <Avatar
+            class="border shadow-sm"
+            :class="linksStore.viewMode === 'minimal' ? 'h-9 w-9' : 'h-12 w-12'"
+          >
+            <AvatarImage
+              :src="linkIcon" :alt="link.slug" loading="lazy" class="
+                object-contain p-2
+              "
+            />
+            <AvatarFallback>
+              <img
+                src="/icon.png" :alt="link.slug" loading="lazy" class="p-2"
+              >
+            </AvatarFallback>
           </Avatar>
 
           <div class="flex-1 overflow-hidden">
@@ -242,11 +266,11 @@ const displayHost = computed(() => linksStore.shortUrlMode === 'compact' ? '...'
               </div>
 
               <Button
-                variant="ghost" size="icon" class="ml-auto h-6 w-6 p-0"
+                variant="ghost" size="icon" class="ml-auto h-8 w-8 p-0"
                 @click.prevent="copyLink"
               >
-                <CopyCheck v-if="copied" class="h-3.5 w-3.5" />
-                <Copy v-else class="h-3.5 w-3.5" />
+                <CopyCheck v-if="copied" class="h-4.5 w-4.5" />
+                <Copy v-else class="h-4.5 w-4.5" />
               </Button>
             </div>
 
@@ -259,12 +283,17 @@ const displayHost = computed(() => linksStore.shortUrlMode === 'compact' ? '...'
             </p>
           </div>
 
-          <div class="flex shrink-0 items-center space-x-1">
+          <div class="flex shrink-0 items-center space-x-2">
             <Popover>
-              <PopoverTrigger aria-label="Show QR code">
+              <PopoverTrigger
+                aria-label="Show QR code" class="
+                  rounded-md p-1.5 transition-colors
+                  hover:bg-accent
+                "
+              >
                 <QrCode
                   class="
-                    h-4 w-4 opacity-70 transition-opacity
+                    h-5 w-5 opacity-70 transition-opacity
                     hover:opacity-100
                   " @click.prevent
                 />
@@ -273,10 +302,15 @@ const displayHost = computed(() => linksStore.shortUrlMode === 'compact' ? '...'
             </Popover>
 
             <Popover v-model:open="editPopoverOpen">
-              <PopoverTrigger aria-label="More actions">
+              <PopoverTrigger
+                aria-label="More actions" class="
+                  rounded-md p-1.5 transition-colors
+                  hover:bg-accent
+                "
+              >
                 <SquareChevronDown
                   class="
-                    h-4 w-4 opacity-70 transition-opacity
+                    h-5 w-5 opacity-70 transition-opacity
                     hover:opacity-100
                   " @click.prevent
                 />

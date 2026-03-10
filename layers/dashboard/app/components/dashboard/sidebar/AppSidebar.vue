@@ -39,9 +39,10 @@ const settingsItems = computed<NavItem[]>(() => [
   },
 ])
 
-const { data: metadata } = await useAsyncData('sidebarMetadata', () => useAPI<{ folders: string[], tags: string[] }>('/api/link/metadata'), {
-  default: () => ({ folders: [], tags: [] }),
-})
+const metadataStore = useMetadataStore()
+if (!metadataStore.folders.length && !metadataStore.tags.length) {
+  await metadataStore.refresh()
+}
 </script>
 
 <template>
@@ -74,7 +75,7 @@ const { data: metadata } = await useAsyncData('sidebarMetadata', () => useAPI<{ 
     </SidebarHeader>
     <SidebarContent>
       <DashboardSidebarNavMain :platform-items="platformItems" :settings-items="settingsItems" />
-      <DashboardSidebarNavOrganization :folders="metadata.folders" :tags="metadata.tags" />
+      <DashboardSidebarNavOrganization :folders="metadataStore.folders.map(f => f.name)" :tags="metadataStore.tags.map(t => t.name)" />
       <DashboardSidebarNavSecondary class="mt-auto" />
     </SidebarContent>
     <SidebarFooter>
