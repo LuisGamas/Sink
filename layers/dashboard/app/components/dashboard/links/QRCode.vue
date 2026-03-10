@@ -8,81 +8,38 @@ const props = withDefaults(defineProps<{
 }>(), {
   image: '',
 })
+
 const color = ref('#000000')
-const options = {
+
+const qrCode = new QRCodeStyling({
   width: 256,
   height: 256,
-  data: props.data,
-  type: 'svg' as const,
+  type: 'canvas',
   margin: 10,
-  qrOptions: { typeNumber: 0 as const, mode: 'Byte' as const, errorCorrectionLevel: 'Q' as const },
-  imageOptions: {
-    hideBackgroundDots: true,
-    imageSize: 0.4,
-    margin: 2,
-    crossOrigin: 'anonymous',
-  },
-  dotsOptions: { type: 'dots' as const, color: '#000000' },
+  qrOptions: { typeNumber: 0, mode: 'Byte', errorCorrectionLevel: 'Q' },
+  imageOptions: { hideBackgroundDots: true, imageSize: 0.4, margin: 2, crossOrigin: 'anonymous' },
+  dotsOptions: { type: 'dots', color: '#000000' },
   backgroundOptions: { color: '#ffffff' },
-  image: props.image || '/icon.png',
-  dotsOptionsHelper: {
-    colorType: { single: true, gradient: false },
-    gradient: {
-      linear: true,
-      radial: false,
-      color1: '#6a1a4c',
-      color2: '#6a1a4c',
-      rotation: '0',
-    },
-  },
-  cornersSquareOptions: { type: 'extra-rounded' as const, color: '#000000' },
-  cornersSquareOptionsHelper: {
-    colorType: { single: true, gradient: false },
-    gradient: {
-      linear: true,
-      radial: false,
-      color1: '#000000',
-      color2: '#000000',
-      rotation: '0',
-    },
-  },
-  cornersDotOptions: { type: 'dot' as const, color: '#000000' },
-  cornersDotOptionsHelper: {
-    colorType: { single: true, gradient: false },
-    gradient: {
-      linear: true,
-      radial: false,
-      color1: '#000000',
-      color2: '#000000',
-      rotation: '0',
-    },
-  },
-  backgroundOptionsHelper: {
-    colorType: { single: true, gradient: false },
-    gradient: {
-      linear: true,
-      radial: false,
-      color1: '#ffffff',
-      color2: '#ffffff',
-      rotation: '0',
-    },
-  },
-}
+  cornersSquareOptions: { type: 'extra-rounded', color: '#000000' },
+  cornersDotOptions: { type: 'dot', color: '#000000' },
+})
 
-const qrCode = new QRCodeStyling(options)
 const qrCodeEl = useTemplateRef<HTMLElement>('qrCodeEl')
 
-function updateColor(newColor: string) {
+function updateQr() {
   qrCode.update({
-    dotsOptions: { type: 'dots' as const, color: newColor },
-    cornersSquareOptions: { type: 'extra-rounded' as const, color: newColor },
-    cornersDotOptions: { type: 'dot' as const, color: newColor },
+    data: props.data,
+    image: props.image || '/icon.png',
+    dotsOptions: { color: color.value },
+    cornersSquareOptions: { color: color.value },
+    cornersDotOptions: { color: color.value },
   })
 }
 
-watch(color, (newColor) => {
-  updateColor(newColor)
-})
+// Watch for any changes in props or color to update the QR
+watch([() => props.data, () => props.image, color], () => {
+  updateQr()
+}, { immediate: true })
 
 function downloadQRCode() {
   const slug = props.data.split('/').pop()
@@ -94,7 +51,8 @@ function downloadQRCode() {
 
 onMounted(() => {
   if (qrCodeEl.value) {
-    qrCode.append(qrCodeEl.value as unknown as HTMLElement)
+    qrCode.append(qrCodeEl.value)
+    updateQr()
   }
 })
 </script>
