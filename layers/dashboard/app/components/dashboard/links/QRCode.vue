@@ -16,10 +16,15 @@ const options = {
   type: 'svg' as const,
   margin: 10,
   qrOptions: { typeNumber: 0 as const, mode: 'Byte' as const, errorCorrectionLevel: 'Q' as const },
-  imageOptions: { hideBackgroundDots: true, imageSize: 0.4, margin: 2 },
+  imageOptions: {
+    hideBackgroundDots: true,
+    imageSize: 0.4,
+    margin: 2,
+    crossOrigin: 'anonymous',
+  },
   dotsOptions: { type: 'dots' as const, color: '#000000' },
   backgroundOptions: { color: '#ffffff' },
-  image: props.image,
+  image: props.image || '/icon.png',
   dotsOptionsHelper: {
     colorType: { single: true, gradient: false },
     gradient: {

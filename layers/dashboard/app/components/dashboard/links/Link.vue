@@ -106,12 +106,18 @@ const displayHost = computed(() => linksStore.shortUrlMode === 'compact' ? '...'
           flex items-center space-x-4
         "
       >
-        <Avatar class="h-9 w-9 shrink-0 border shadow-sm">
-          <AvatarImage
-            :src="linkIcon" :alt="link.slug" class="object-contain p-1.5"
-          />
-          <AvatarFallback><img src="/icon.png" class="h-9 w-9 p-1.5"></AvatarFallback>
-        </Avatar>
+        <div
+          class="
+            flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden
+            rounded-md border bg-white p-1.5 shadow-sm
+          "
+        >
+          <img
+            :src="linkIcon" :alt="link.slug" class="
+              h-full w-full object-contain
+            "
+          >
+        </div>
 
         <div class="flex min-w-0 flex-1 items-center space-x-3">
           <div class="shrink-0 truncate font-bold">
@@ -220,21 +226,21 @@ const displayHost = computed(() => linksStore.shortUrlMode === 'compact' ? '...'
         :to="`/dashboard/link?slug=${link.slug}`"
       >
         <div class="flex items-center justify-center space-x-3">
-          <Avatar
-            class="border shadow-sm"
-            :class="linksStore.viewMode === 'minimal' ? 'h-9 w-9' : 'h-12 w-12'"
+          <div
+            class="
+              flex shrink-0 items-center justify-center overflow-hidden
+              rounded-lg border bg-white shadow-sm
+            "
+            :class="linksStore.viewMode === 'minimal' ? 'h-9 w-9 p-1.5' : `
+              h-12 w-12 p-2
+            `"
           >
-            <AvatarImage
+            <img
               :src="linkIcon" :alt="link.slug" loading="lazy" class="
-                object-contain p-2
+                h-full w-full object-contain
               "
-            />
-            <AvatarFallback>
-              <img
-                src="/icon.png" :alt="link.slug" loading="lazy" class="p-2"
-              >
-            </AvatarFallback>
-          </Avatar>
+            >
+          </div>
 
           <div class="flex-1 overflow-hidden">
             <div class="flex items-center">
