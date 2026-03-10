@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { Download } from 'lucide-vue-next'
-import QRCodeStyling from 'qr-code-styling'
 
 const props = withDefaults(defineProps<{
   data: string
@@ -10,50 +9,76 @@ const props = withDefaults(defineProps<{
 })
 
 const color = ref('#000000')
+const qrCodeEl = ref<HTMLElement | null>(null)
+let qrCode: any = null
 
-const qrCode = new QRCodeStyling({
-  width: 256,
-  height: 256,
-  type: 'canvas',
-  margin: 10,
-  qrOptions: { typeNumber: 0, mode: 'Byte', errorCorrectionLevel: 'Q' },
-  imageOptions: { hideBackgroundDots: true, imageSize: 0.4, margin: 2, crossOrigin: 'anonymous' },
-  dotsOptions: { type: 'dots', color: '#000000' },
-  backgroundOptions: { color: '#ffffff' },
-  cornersSquareOptions: { type: 'extra-rounded', color: '#000000' },
-  cornersDotOptions: { type: 'dot', color: '#000000' },
-})
+async function init() {
+  if (!import.meta.client)
+    return
 
-const qrCodeEl = useTemplateRef<HTMLElement>('qrCodeEl')
+  try {
+    // Dynamic import to avoid SSR issues with canvas/document
+    const { default: QRCodeStyling } = await import('qr-code-styling')
 
-function updateQr() {
-  qrCode.update({
-    data: props.data,
-    image: props.image || '/icon.png',
-    dotsOptions: { color: color.value },
-    cornersSquareOptions: { color: color.value },
-    cornersDotOptions: { color: color.value },
-  })
+    qrCode = new QRCodeStyling({
+      width: 260,
+      height: 260,
+      type: 'svg',
+      data: props.data,
+      image: '/icon.png', // Using local icon for stability
+      margin: 10,
+      qrOptions: { typeNumber: 0, mode: 'Byte', errorCorrectionLevel: 'Q' },
+      imageOptions: { hideBackgroundDots: true, imageSize: 0.4, margin: 2, crossOrigin: 'anonymous' },
+      dotsOptions: { type: 'dots', color: color.value },
+      backgroundOptions: { color: '#ffffff' },
+      cornersSquareOptions: { type: 'extra-rounded', color: color.value },
+      cornersDotOptions: { type: 'dot', color: color.value },
+    })
+
+    if (qrCodeEl.value) {
+      qrCodeEl.value.innerHTML = '' // Clear container
+      qrCode.append(qrCodeEl.value)
+    }
+  }
+  catch (err) {
+    console.error('Failed to initialize QR code:', err)
+  }
 }
 
-// Watch for any changes in props or color to update the QR
-watch([() => props.data, () => props.image, color], () => {
+function updateQr() {
+  if (qrCode) {
+    qrCode.update({
+      data: props.data,
+      dotsOptions: { color: color.value },
+      cornersSquareOptions: { color: color.value },
+      cornersDotOptions: { color: color.value },
+    })
+  }
+}
+
+watch(color, () => {
   updateQr()
-}, { immediate: true })
+})
+
+watch(() => props.data, () => {
+  updateQr()
+})
 
 function downloadQRCode() {
-  const slug = props.data.split('/').pop()
-  qrCode.download({
-    extension: 'png',
-    name: `qr_${slug}`,
-  })
+  if (qrCode) {
+    const slug = props.data.split('/').pop()
+    qrCode.download({
+      extension: 'png',
+      name: `qr_${slug}`,
+    })
+  }
 }
 
 onMounted(() => {
-  if (qrCodeEl.value) {
-    qrCode.append(qrCodeEl.value)
-    updateQr()
-  }
+  // Give Nuxt/Radix a moment to fully render the popover content
+  nextTick(() => {
+    setTimeout(init, 200)
+  })
 })
 </script>
 
@@ -61,9 +86,16 @@ onMounted(() => {
   <div class="flex flex-col items-center gap-4">
     <div
       ref="qrCodeEl"
-      :data-text="data"
-      class="rounded-lg bg-white p-1"
-    />
+      class="
+        flex min-h-[260px] min-w-[260px] items-center justify-center rounded-lg
+        border bg-white p-1 shadow-sm
+      "
+    >
+      <!-- Loading state if needed -->
+      <div v-if="!qrCode" class="animate-pulse text-xs text-muted-foreground">
+        Generating QR...
+      </div>
+    </div>
     <div class="flex items-center gap-4">
       <div class="relative flex items-center">
         <div
@@ -86,6 +118,7 @@ onMounted(() => {
       <Button
         variant="outline"
         size="sm"
+        :disabled="!qrCode"
         @click="downloadQRCode"
       >
         <Download class="mr-2 h-4 w-4" />
