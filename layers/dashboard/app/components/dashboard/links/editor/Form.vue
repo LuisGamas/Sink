@@ -18,6 +18,7 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
+const metadataStore = useMetadataStore()
 
 const urlValidator = LinkSchema.shape.url
 const slugValidator = LinkSchema.shape.slug
@@ -81,7 +82,7 @@ const form = useForm({
         },
       )
       emit('success', newLink)
-      refreshNuxtData(['sidebarMetadata', 'existingMetadata'])
+      metadataStore.refresh()
       toast(props.isEdit ? t('links.update_success') : t('links.create_success'))
     }
     catch (error) {
@@ -157,7 +158,6 @@ const currentSlug = form.useStore(state => state.values.slug || '')
 
 const { previewMode } = useRuntimeConfig().public
 
-const metadataStore = useMetadataStore()
 if (!metadataStore.folders.length && !metadataStore.tags.length) {
   metadataStore.refresh()
 }

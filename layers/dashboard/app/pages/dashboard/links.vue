@@ -7,6 +7,7 @@ definePageMeta({
 })
 
 const linksStore = useDashboardLinksStore()
+const metadataStore = useMetadataStore()
 const isDeleting = ref(false)
 
 async function handleBatchDelete() {
@@ -28,6 +29,7 @@ async function handleBatchDelete() {
 
     linksStore.notifyLinkUpdate({ slugs } as any, 'delete-batch')
     linksStore.clearSelection()
+    metadataStore.refresh()
     toast.success(`${count} links deleted successfully`)
   }
   catch (error) {
