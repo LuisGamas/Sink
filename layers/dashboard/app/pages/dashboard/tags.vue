@@ -6,6 +6,8 @@ definePageMeta({
   layout: 'dashboard',
 })
 
+const { t } = useI18n()
+
 const { data: metadata, refresh } = await useAsyncData('metadata', () => useAPI<{ folders: any[], tags: any[] }>('/api/metadata'))
 
 const showEditor = ref(false)
@@ -33,8 +35,10 @@ async function handleSave(data: { name: string, color: string, oldName?: string 
     toast.success(t('dashboard.library.update_success', { type: t('nav.tags').slice(0, -1) }))
     showEditor.value = false
     refresh()
+    refreshNuxtData(['sidebarMetadata', 'existingMetadata'])
   }
-  catch {
+  catch (error) {
+    console.error(error)
     toast.error(t('dashboard.library.update_failed', { type: t('nav.tags').slice(0, -1) }))
   }
 }
@@ -54,8 +58,10 @@ async function handleDelete(name: string) {
     })
     toast.success(t('dashboard.library.delete_success', { type: t('nav.tags').slice(0, -1) }))
     refresh()
+    refreshNuxtData(['sidebarMetadata', 'existingMetadata'])
   }
-  catch {
+  catch (error) {
+    console.error(error)
     toast.error(t('dashboard.library.delete_failed', { type: t('nav.tags').slice(0, -1) }))
   }
 }
