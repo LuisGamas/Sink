@@ -5,6 +5,21 @@
 > This is a customized fork of the original [Sink](https://github.com/miantiao-me/Sink) project. It has been detached and modified to meet specific personal requirements and enhancements. While this version includes advanced features like D1 integration and UI optimizations, the original credits remain with the initial author. If you are looking for the general version, please visit the original repository. You are free to use this version if its enhancements suit your needs.
 ---
 
+## ❤️ Support & Community
+
+This project is developed with dedication to the community. If you find it valuable, consider supporting its maintenance and growth:
+
+<div align="center">
+  <a href="https://www.buymeacoffee.com/luisgamas">
+    <img src="https://raw.githubusercontent.com/LuisGamas/buttons-design/main/buy-me-a-coffe.png" width="220" alt="Buy Me a Coffee" />
+  </a>
+  <a href="https://www.paypal.com/donate/?hosted_button_id=NYCR5M6QHZ7JC">
+    <img src="https://raw.githubusercontent.com/LuisGamas/buttons-design/main/paypal_donations.png" width="220" alt="Donate via PayPal" />
+  </a>
+</div>
+
+---
+
 **A Simple / Speedy / Secure Link Shortener with Analytics, 100% run on Cloudflare.**
 
 <a href="https://trendshift.io/repositories/10421" target="_blank">
