@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AlertCircle } from 'lucide-vue-next'
+import { AlertCircle, LogIn } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 import { z } from 'zod'
 
@@ -9,6 +9,7 @@ const { setToken, removeToken } = useAuthToken()
 
 const token = ref('')
 const error = ref('')
+const loading = ref(false)
 
 const LoginSchema = z.object({
   token: z.string().min(1),
@@ -23,6 +24,7 @@ async function handleSubmit() {
     return
   }
 
+  loading.value = true
   try {
     setToken(token.value)
     await useAPI('/api/verify')
@@ -35,12 +37,15 @@ async function handleSubmit() {
       description: e instanceof Error ? e.message : String(e),
     })
   }
+  finally {
+    loading.value = false
+  }
 }
 </script>
 
 <template>
-  <Card class="w-full max-w-sm">
-    <CardHeader>
+  <Card class="w-full max-w-sm border-border/50 shadow-lg backdrop-blur-sm">
+    <CardHeader class="text-center">
       <CardTitle class="text-2xl">
         {{ $t('login.title') }}
       </CardTitle>
@@ -48,9 +53,8 @@ async function handleSubmit() {
         {{ $t('login.description') }}
       </CardDescription>
     </CardHeader>
-    <CardContent class="grid gap-4">
-      <form class="space-y-6" @submit.prevent="handleSubmit">
-        <!-- Hidden username field for password managers -->
+    <CardContent>
+      <form class="flex flex-col gap-4" @submit.prevent="handleSubmit">
         <Input
           type="text"
           name="username"
@@ -61,6 +65,7 @@ async function handleSubmit() {
           tabindex="-1"
           aria-hidden="true"
         />
+
         <FieldGroup>
           <Field :data-invalid="!!error">
             <FieldLabel for="token">
@@ -80,15 +85,21 @@ async function handleSubmit() {
         </FieldGroup>
 
         <Alert v-if="previewMode">
-          <AlertCircle class="h-4 w-4" />
+          <AlertCircle />
           <AlertTitle>{{ $t('login.tips') }}</AlertTitle>
           <AlertDescription>
             {{ $t('login.preview_token') }}
-            <code class="font-mono text-green-500">SinkCool</code>
+            <code
+              class="
+                rounded bg-muted px-1.5 py-0.5 font-mono text-sm text-green-500
+              "
+            >SinkCool</code>
           </AlertDescription>
         </Alert>
 
-        <Button class="w-full" type="submit">
+        <Button class="w-full" type="submit" :disabled="loading">
+          <Spinner v-if="loading" />
+          <LogIn v-else data-icon="inline-start" />
           {{ $t('login.submit') }}
         </Button>
       </form>
