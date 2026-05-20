@@ -29,9 +29,6 @@ public/world.json
 .dev.*
 .kiro/steering/locale.md
 
-.claude
-.opencode
-.agents
 local_test.md
 revanced.md
 opencode.json
